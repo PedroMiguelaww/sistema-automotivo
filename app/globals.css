@@ -1,0 +1,166 @@
+@import "tailwindcss";
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+:root {
+  --cor-primaria: #d97706;
+  --cor-primaria-clara: #f59e0b;
+  --cor-fundo: #0a0a0a;
+  --cor-fundo-elevado: #141414;
+  --cor-texto: #f5f5f5;
+  --cor-texto-suave: #a3a3a3;
+  --cor-borda: #262626;
+  --raio: 0.75rem;
+}
+
+body {
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
+  font-family: var(--font-inter), sans-serif;
+
+  background-image:
+    radial-gradient(circle, rgba(217, 119, 6, 0.15) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.fonte-titulo {
+  font-family: var(--font-titulo), sans-serif;
+}
+
+@keyframes entrada-suave {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pagina {
+  animation: entrada-suave 0.4s ease-out;
+}
+
+.cartao {
+  background: var(--cor-fundo-elevado);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  padding: 1.25rem;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.cartao:hover {
+  border-color: var(--cor-primaria);
+}
+
+.botao-principal {
+  background-color: var(--cor-primaria);
+  color: #0a0a0a;
+  font-weight: 600;
+  padding: 0.7rem 1.5rem;
+  border-radius: var(--raio);
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.botao-principal:hover {
+  background-color: var(--cor-primaria-clara);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(217, 119, 6, 0.3);
+}
+
+.botao-principal:active {
+  transform: scale(0.97) translateY(0);
+}
+
+.botao-principal:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.botao-secundario {
+  background: transparent;
+  color: var(--cor-texto);
+  border: 1px solid var(--cor-borda);
+  font-weight: 500;
+  padding: 0.7rem 1.5rem;
+  border-radius: var(--raio);
+  transition: border-color 0.2s ease, transform 0.15s ease;
+}
+
+.botao-secundario:hover {
+  border-color: var(--cor-primaria);
+  transform: translateY(-2px);
+}
+
+.campo-input {
+  width: 100%;
+  background: var(--cor-fundo-elevado);
+  border: 1px solid var(--cor-borda);
+  color: var(--cor-texto);
+  border-radius: var(--raio);
+  padding: 0.65rem 0.9rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.campo-input::placeholder {
+  color: var(--cor-texto-suave);
+}
+
+.campo-input:focus {
+  outline: none;
+  border-color: var(--cor-primaria);
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+}
+@keyframes toast-entrada {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.toast-entrada {
+  animation: toast-entrada 0.25s ease-out;
+}
+
+@keyframes piscar-suave {
+  0%, 100% {
+    background-color: var(--cor-fundo-elevado);
+  }
+  30% {
+    background-color: rgba(217, 119, 6, 0.15);
+  }
+}
+
+.item-novo {
+  animation: piscar-suave 1.2s ease-out;
+}
+
+@keyframes pulsar {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+.esqueleto {
+  background-color: var(--cor-fundo-elevado);
+  border-radius: var(--raio);
+  animation: pulsar 1.5s ease-in-out infinite;
+}
+/* Esconde a barra de rolagem visualmente, mas mantém a rolagem funcionando */
+.sem-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Edge antigo */
+}
+
+.sem-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Edge novo */
+}
