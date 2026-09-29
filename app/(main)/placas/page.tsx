@@ -251,7 +251,7 @@ export default function PlacasPage() {
 
         {placaDetectada && placaValida(placaDetectada) && (
           <p className="text-sm text-green-500">
-            Placa identificada: <strong>{placaDetectada}</strong>
+            Formato válido: <strong>{placaDetectada}</strong>
           </p>
         )}
 
