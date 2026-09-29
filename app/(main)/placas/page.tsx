@@ -18,6 +18,10 @@ type Placa = {
   dados_extra: Record<string, string> | null
 }
 
+function placaValida(valor: string) {
+  return /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/.test(valor) || /^[A-Z]{3}[0-9]{4}$/.test(valor)
+}
+
 export default function PlacasPage() {
   const [consultores, setConsultores] = useState<Consultor[]>([])
   const [placas, setPlacas] = useState<Placa[]>([])
@@ -160,8 +164,13 @@ export default function PlacasPage() {
     e.preventDefault()
     if (salvando) return
 
-    if (!placaDetectada || !consultorSelecionado) {
-      setAviso('Preencha a placa e selecione o consultor antes de salvar.')
+    if (!placaDetectada || !placaValida(placaDetectada)) {
+      setAviso('Preencha uma placa em formato válido (ex: ABC1D23).')
+      return
+    }
+
+    if (!consultorSelecionado) {
+      setAviso('Selecione o consultor antes de salvar.')
       return
     }
 
@@ -220,15 +229,27 @@ export default function PlacasPage() {
           type="text"
           placeholder="Ex: TST1A23"
           value={placaDetectada}
-          onChange={(e) => setPlacaDetectada(e.target.value.toUpperCase())}
+          onChange={(e) => {
+            const valor = e.target.value.toUpperCase()
+            setPlacaDetectada(valor)
+
+            if (valor.length === 0) {
+              setAviso('')
+            } else if (placaValida(valor)) {
+              setAviso('')
+            } else {
+              setAviso('Formato de placa inválido. Use o padrão ABC1D23 ou ABC1234.')
+            }
+          }}
           className="campo-input"
+          maxLength={7}
         />
 
         {lendoImagem && (
           <p className="text-xs text-[var(--cor-primaria)]">Lendo foto, aguarde...</p>
         )}
 
-        {placaDetectada && (
+        {placaDetectada && placaValida(placaDetectada) && (
           <p className="text-sm text-green-500">
             Placa identificada: <strong>{placaDetectada}</strong>
           </p>
