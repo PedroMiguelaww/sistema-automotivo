@@ -139,7 +139,7 @@ export default function PlacasPage() {
         texto = await lerTextoDaImagem(base64)
       } catch {
         setLendoImagem(false)
-        setAviso('Não foi possível ler a imagem. Tente novamente.')
+        setAviso('Não foi possível ler a imagem. Tente novamente ou digite a placa manualmente.')
         return
       }
       setLendoImagem(false)
@@ -150,7 +150,7 @@ export default function PlacasPage() {
         setPlacaDetectada(matchPlaca[1])
         setAviso('Placa lida da foto — confira se está correta antes de salvar.')
       } else {
-        setAviso('Não consegui ler a placa nessa foto. Tente tirar de novo, mais próximo e com boa luz.')
+        setAviso('Não consegui ler a placa nessa foto. Tente tirar de novo, ou digite manualmente.')
       }
     }
     reader.readAsDataURL(file)
@@ -212,6 +212,17 @@ export default function PlacasPage() {
             className="hidden"
           />
         </label>
+
+        <label className="block mb-1 text-sm font-medium text-[var(--cor-texto-suave)]">
+          Ou digitar a placa manualmente
+        </label>
+        <input
+          type="text"
+          placeholder="Ex: TST1A23"
+          value={placaDetectada}
+          onChange={(e) => setPlacaDetectada(e.target.value.toUpperCase())}
+          className="campo-input"
+        />
 
         {lendoImagem && (
           <p className="text-xs text-[var(--cor-primaria)]">Lendo foto, aguarde...</p>
