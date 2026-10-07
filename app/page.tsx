@@ -47,11 +47,10 @@ export default function HomePage() {
 
   return (
     <div className="pagina flex min-h-screen flex-col items-center justify-center px-6 text-center">
-     <Image src="/logo-proseg.png" alt="Proseg" width={180} height={60} className="mb-4" priority />
+           <Image src="/logo-proseg.png" alt="Proseg" width={240} height={80} className="mb-4" priority />
       <h1 className="fonte-titulo text-2xl font-bold tracking-tight mb-2">
         Sistema Automotivo
       </h1>
-      
       <p className="text-[var(--cor-texto-suave)] mb-8 max-w-sm">
         Gestão e comunicação integrada para atendimento automotivo.
       </p>

@@ -1,32 +1,17 @@
-import type { Metadata } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
-import "./globals.css";
+import NavBar from '@/components/NavBar'
+import Header from '@/components/Header'
+import { ToastProvider } from '@/components/Toast'
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-titulo",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
-  title: "Sistema Automotivo",
-  description: "Gestão e comunicação automotiva",
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR">
-      <body className={`${inter.variable} ${spaceGrotesk.variable} antialiased`}>
-        {children}
-      </body>
-    </html>
-  );
+    <ToastProvider>
+      <div className="h-dvh flex flex-col">
+        <Header />
+        <div className="flex-1 overflow-y-auto sem-scrollbar">
+          {children}
+        </div>
+        <NavBar />
+      </div>
+    </ToastProvider>
+  )
 }
