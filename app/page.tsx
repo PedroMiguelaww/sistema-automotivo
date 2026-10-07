@@ -51,6 +51,7 @@ export default function HomePage() {
       <h1 className="fonte-titulo text-2xl font-bold tracking-tight mb-2">
         Sistema Automotivo
       </h1>
+      
       <p className="text-[var(--cor-texto-suave)] mb-8 max-w-sm">
         Gestão e comunicação integrada para atendimento automotivo.
       </p>
