@@ -182,8 +182,12 @@ export default function PlacasPage() {
     })
     setSalvando(false)
 
-    if (error) {
-      mostrarToast('Não foi possível salvar a placa. Tente novamente.', 'erro')
+        if (error) {
+      if (error.code === '23505') {
+        mostrarToast('Essa placa já está cadastrada no sistema.', 'erro')
+      } else {
+        mostrarToast('Não foi possível salvar a placa. Tente novamente.', 'erro')
+      }
       return
     }
 
