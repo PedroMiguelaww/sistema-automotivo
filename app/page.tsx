@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
+import Image from 'next/image'
 
 export default function HomePage() {
   const [logado, setLogado] = useState<boolean | null>(null)
@@ -46,7 +47,8 @@ export default function HomePage() {
 
   return (
     <div className="pagina flex min-h-screen flex-col items-center justify-center px-6 text-center">
-      <h1 className="fonte-titulo text-4xl font-bold tracking-tight mb-2">
+     <Image src="/logo-proseg.png" alt="Proseg" width={180} height={60} className="mb-4" priority />
+      <h1 className="fonte-titulo text-2xl font-bold tracking-tight mb-2">
         Sistema Automotivo
       </h1>
       <p className="text-[var(--cor-texto-suave)] mb-8 max-w-sm">
