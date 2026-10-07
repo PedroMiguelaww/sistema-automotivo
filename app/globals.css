@@ -1,13 +1,8 @@
 @import "tailwindcss";
 
-html, body {
-  height: 100%;
-  overflow: hidden;
-}
-
 :root {
-  --cor-primaria: #d97706;
-  --cor-primaria-clara: #f59e0b;
+  --cor-primaria: #2563eb;
+  --cor-primaria-clara: #3b82f6;
   --cor-fundo: #0a0a0a;
   --cor-fundo-elevado: #141414;
   --cor-texto: #f5f5f5;
@@ -16,13 +11,18 @@ html, body {
   --raio: 0.75rem;
 }
 
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   background-color: var(--cor-fundo);
   color: var(--cor-texto);
   font-family: var(--font-inter), sans-serif;
 
   background-image:
-    radial-gradient(circle, rgba(217, 119, 6, 0.15) 1px, transparent 1px);
+    radial-gradient(circle, rgba(37, 99, 235, 0.15) 1px, transparent 1px);
   background-size: 28px 28px;
 }
 
@@ -59,7 +59,7 @@ body {
 
 .botao-principal {
   background-color: var(--cor-primaria);
-  color: #0a0a0a;
+  color: #ffffff;
   font-weight: 600;
   padding: 0.7rem 1.5rem;
   border-radius: var(--raio);
@@ -69,7 +69,7 @@ body {
 .botao-principal:hover {
   background-color: var(--cor-primaria-clara);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(217, 119, 6, 0.3);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
 }
 
 .botao-principal:active {
@@ -115,8 +115,18 @@ body {
 .campo-input:focus {
   outline: none;
   border-color: var(--cor-primaria);
-  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
+
+.sem-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sem-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 @keyframes toast-entrada {
   from {
     opacity: 0;
@@ -137,7 +147,7 @@ body {
     background-color: var(--cor-fundo-elevado);
   }
   30% {
-    background-color: rgba(217, 119, 6, 0.15);
+    background-color: rgba(37, 99, 235, 0.15);
   }
 }
 
@@ -154,13 +164,4 @@ body {
   background-color: var(--cor-fundo-elevado);
   border-radius: var(--raio);
   animation: pulsar 1.5s ease-in-out infinite;
-}
-/* Esconde a barra de rolagem visualmente, mas mantém a rolagem funcionando */
-.sem-scrollbar {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* Edge antigo */
-}
-
-.sem-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Edge novo */
 }

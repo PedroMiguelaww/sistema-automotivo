@@ -29,7 +29,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         <div
           className={`fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-[var(--raio)] text-sm font-medium shadow-lg toast-entrada ${
             toast.tipo === 'sucesso'
-              ? 'bg-[var(--cor-primaria)] text-[#0a0a0a]'
+              ? 'bg-[var(--cor-primaria)] text-white'
               : 'bg-red-500 text-white'
           }`}
         >

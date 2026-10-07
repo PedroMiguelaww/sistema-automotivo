@@ -28,7 +28,7 @@ const STATUS_ORDEM = ['Aguardando avaliação', 'Procurando peça', 'Consertando
 const STATUS_COR: Record<string, string> = {
   'Aguardando avaliação': 'bg-white/10 text-gray-300',
   'Procurando peça': 'bg-amber-500/15 text-amber-400',
-  'Consertando': 'bg-blue-500/15 text-blue-400',
+  'Consertando': 'bg-violet-500/15 text-violet-400',
   'Finalizado': 'bg-green-500/15 text-green-400',
 }
 
