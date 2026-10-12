@@ -132,7 +132,11 @@ export default function PecasPage() {
     if (salvando) return
     if (!placaSelecionada || !nomePeca || !valorPeca) return
 
-    const valorNumerico = parseFloat(valorPeca.replace(/\./g, '').replace(',', '.'))
+    const t = valorPeca.trim()
+const milharBR = /^\d{1,3}(\.\d{3})+$/.test(t)
+const valorNumerico = t.includes(',') || milharBR
+  ? parseFloat(t.replace(/\./g, '').replace(',', '.'))
+  : parseFloat(t)
     if (isNaN(valorNumerico) || valorNumerico <= 0) {
       mostrarToast('Informe um valor válido, maior que zero', 'erro')
       return

@@ -27,7 +27,7 @@ export default function CadastroPage() {
     })
 
     if (error) {
-      setErro('Não foi possível criar a conta: ' + error.message)
+      setErro('Não foi possível criar a conta. Verifique os dados e tente novamente.')
       return
     }
 
