@@ -4,39 +4,21 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { lerTextoDaImagem } from '@/lib/ocr'
 import { useToast } from '@/components/Toast'
-<<<<<<< HEAD
 import ListaPlacas from '@/components/ListaPlacas'
 import { lerMensagem0800 } from '@/lib/mensagem0800'
-=======
->>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
 
 type Consultor = {
   id: string
   nome: string
 }
 
-<<<<<<< HEAD
-=======
-type Placa = {
-  id: string
-  placa: string
-  consultor_id: string
-  created_at: string
-  dados_extra: Record<string, string> | null
-}
-
->>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
 function placaValida(valor: string) {
   return /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/.test(valor) || /^[A-Z]{3}[0-9]{4}$/.test(valor)
 }
 
 export default function PlacasPage() {
   const [consultores, setConsultores] = useState<Consultor[]>([])
-<<<<<<< HEAD
   const [atualizarLista, setAtualizarLista] = useState(0)
-=======
-  const [placas, setPlacas] = useState<Placa[]>([])
->>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
   const [mensagem, setMensagem] = useState('')
   const [placaDetectada, setPlacaDetectada] = useState('')
   const [consultorSelecionado, setConsultorSelecionado] = useState('')
@@ -48,18 +30,12 @@ export default function PlacasPage() {
   const supabase = createClient()
   const { mostrarToast } = useToast()
 
-<<<<<<< HEAD
   async function carregarConsultores() {
     const { data, error } = await supabase
-=======
-  async function carregarDados() {
-    const { data: consultoresData, error: erroConsultores } = await supabase
->>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
       .from('profiles')
       .select('id, nome')
       .eq('role', 'consultor')
 
-<<<<<<< HEAD
     if (error) {
       mostrarToast('Não foi possível carregar os dados. Verifique sua conexão.', 'erro')
     }
@@ -68,23 +44,6 @@ export default function PlacasPage() {
 
   useEffect(() => {
     carregarConsultores()
-=======
-    const { data: placasData, error: erroPlacas } = await supabase
-      .from('placas')
-      .select('id, placa, consultor_id, created_at, dados_extra')
-      .order('created_at', { ascending: false })
-
-    if (erroConsultores || erroPlacas) {
-      mostrarToast('Não foi possível carregar os dados. Verifique sua conexão.', 'erro')
-    }
-
-    if (consultoresData) setConsultores(consultoresData)
-    if (placasData) setPlacas(placasData)
-  }
-
-  useEffect(() => {
-    carregarDados()
->>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
   }, [])
 
   function normalizarNome(nome: string) {
@@ -100,21 +59,7 @@ export default function PlacasPage() {
     setMensagem(texto)
     setAviso('')
 
-<<<<<<< HEAD
     const campos = lerMensagem0800(texto)
-=======
-    const campos: Record<string, string> = {}
-    const linhas = texto.split('\n')
-
-    for (const linha of linhas) {
-      const match = linha.match(/^([A-Za-zÀ-ú0-9\/ ]+):\s*(.+)$/)
-      if (match) {
-        const campo = match[1].trim()
-        const valor = match[2].trim()
-        campos[campo] = valor
-      }
-    }
->>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
 
     let placaEncontrada = ''
     if (campos['Veículo']) {
@@ -229,11 +174,7 @@ export default function PlacasPage() {
     setConsultorSelecionado('')
     setDadosExtra({})
     setAviso('')
-<<<<<<< HEAD
     setAtualizarLista((n) => n + 1)
-=======
-    carregarDados()
->>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
   }
 
   return (
@@ -318,24 +259,8 @@ export default function PlacasPage() {
         </button>
       </form>
 
-<<<<<<< HEAD
       <h2 className="fonte-titulo text-lg font-bold mb-3">Placas em andamento</h2>
       <ListaPlacas consultores={consultores} refreshKey={atualizarLista} />
-=======
-      <h2 className="fonte-titulo text-lg font-bold mb-2">Placas cadastradas</h2>
-      <div className="space-y-2">
-        {placas.map((p) => (
-          <div key={p.id} className="cartao text-sm flex justify-between">
-            <span>
-              <strong>{p.placa}</strong> — {consultores.find((c) => c.id === p.consultor_id)?.nome || 'Consultor não identificado'}
-            </span>
-            {p.dados_extra?.['Beneficiário'] && (
-  <span className="text-[var(--cor-texto-suave)]">{p.dados_extra['Beneficiário']}</span>
-)}
-          </div>
-        ))}
-      </div>
->>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
     </div>
   )
 }
