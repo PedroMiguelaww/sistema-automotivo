@@ -3,8 +3,18 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useToast } from '@/components/Toast'
+<<<<<<< HEAD
 import SeletorPlaca from '@/components/SeletorPlaca'
 import type { PlacaLinha } from '@/components/ListaPlacas'
+=======
+
+type Placa = {
+  id: string
+  placa: string
+  status: string
+  consultor_id: string
+}
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
 
 type Consultor = {
   id: string
@@ -28,21 +38,46 @@ const STATUS_COR: Record<string, string> = {
 }
 
 export default function MecanicaPage() {
+<<<<<<< HEAD
   const [consultores, setConsultores] = useState<Consultor[]>([])
   const [placaSelecionada, setPlacaSelecionada] = useState<PlacaLinha | null>(null)
   const [atualizarLista, setAtualizarLista] = useState(0)
+=======
+  const [placas, setPlacas] = useState<Placa[]>([])
+  const [consultores, setConsultores] = useState<Consultor[]>([])
+  const [placaSelecionada, setPlacaSelecionada] = useState('')
+  const [statusAtual, setStatusAtual] = useState('')
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
   const [historico, setHistorico] = useState<HistoricoItem[]>([])
   const [atualizando, setAtualizando] = useState(false)
 
   const supabase = createClient()
   const { mostrarToast } = useToast()
 
+<<<<<<< HEAD
+=======
+  async function carregarPlacas() {
+    const { data, error } = await supabase.from('placas').select('id, placa, status, consultor_id')
+    if (error) {
+      mostrarToast('Não foi possível carregar as placas. Verifique sua conexão.', 'erro')
+      return
+    }
+    if (data) setPlacas(data)
+  }
+
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
   async function carregarConsultores() {
     const { data } = await supabase.from('profiles').select('id, nome')
     if (data) setConsultores(data)
   }
 
   async function carregarDetalhe(placaId: string) {
+<<<<<<< HEAD
+=======
+    const placa = placas.find((p) => p.id === placaId)
+    if (placa) setStatusAtual(placa.status)
+
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
     const { data, error } = await supabase
       .from('status_historico')
       .select('id, status_anterior, status_novo, created_at')
@@ -57,15 +92,27 @@ export default function MecanicaPage() {
   }
 
   useEffect(() => {
+<<<<<<< HEAD
+=======
+    carregarPlacas()
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
     carregarConsultores()
   }, [])
 
   useEffect(() => {
+<<<<<<< HEAD
     if (placaSelecionada) carregarDetalhe(placaSelecionada.id)
   }, [placaSelecionada?.id])
 
   async function avancarStatus() {
     if (atualizando || !placaSelecionada) return
+=======
+    if (placaSelecionada) carregarDetalhe(placaSelecionada)
+  }, [placaSelecionada, placas])
+
+  async function avancarStatus() {
+    if (atualizando) return
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
 
     const indexAtual = STATUS_ORDEM.indexOf(statusAtual)
     const proximo = STATUS_ORDEM[indexAtual + 1]
@@ -78,7 +125,11 @@ export default function MecanicaPage() {
     const { error: erroUpdate } = await supabase
       .from('placas')
       .update({ status: proximo })
+<<<<<<< HEAD
       .eq('id', placaSelecionada.id)
+=======
+      .eq('id', placaSelecionada)
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
 
     if (erroUpdate) {
       mostrarToast('Não foi possível atualizar o status. Tente novamente.', 'erro')
@@ -87,7 +138,11 @@ export default function MecanicaPage() {
     }
 
     const { error: erroHistorico } = await supabase.from('status_historico').insert({
+<<<<<<< HEAD
       placa_id: placaSelecionada.id,
+=======
+      placa_id: placaSelecionada,
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
       status_anterior: statusAtual,
       status_novo: proximo,
       atualizado_por: user?.id,
@@ -99,6 +154,7 @@ export default function MecanicaPage() {
       mostrarToast(`Status atualizado para "${proximo}"`)
     }
 
+<<<<<<< HEAD
     setPlacaSelecionada({ ...placaSelecionada, status: proximo })
     setAtualizarLista((n) => n + 1)
     await carregarDetalhe(placaSelecionada.id)
@@ -109,17 +165,45 @@ export default function MecanicaPage() {
   const proximoStatus = STATUS_ORDEM[STATUS_ORDEM.indexOf(statusAtual) + 1]
 
   const consultorResponsavel = consultores.find((c) => c.id === placaSelecionada?.consultor_id)
+=======
+    await carregarPlacas()
+    await carregarDetalhe(placaSelecionada)
+    setAtualizando(false)
+  }
+
+  const proximoStatus = STATUS_ORDEM[STATUS_ORDEM.indexOf(statusAtual) + 1]
+
+  const consultorResponsavel = consultores.find(
+    (c) => c.id === placas.find((p) => p.id === placaSelecionada)?.consultor_id
+  )
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
 
   return (
     <div className="pagina p-8 max-w-2xl">
       <h1 className="fonte-titulo text-xl font-bold mb-4">Mecânica</h1>
 
+<<<<<<< HEAD
       <SeletorPlaca
         selecionada={placaSelecionada}
         onSelecionar={setPlacaSelecionada}
         consultores={consultores}
         refreshKey={atualizarLista}
       />
+=======
+      <label className="block mb-1 text-sm font-medium text-[var(--cor-texto-suave)]">Placa</label>
+      <select
+        value={placaSelecionada}
+        onChange={(e) => setPlacaSelecionada(e.target.value)}
+        className="campo-input mb-2"
+      >
+        <option value="">Selecione a placa...</option>
+        {placas.map((p) => (
+          <option key={p.id} value={p.id}>
+            {p.placa}
+          </option>
+        ))}
+      </select>
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
 
       {placaSelecionada && (
         <p className="text-sm text-[var(--cor-texto-suave)] mb-6">

@@ -34,11 +34,17 @@ function soDigitos(texto?: string) {
 
 export default function PlacaDetalhe({
   placa,
+<<<<<<< HEAD
   consultorNome,
   onClose,
 }: {
   placa: PlacaResumo
   consultorNome?: string
+=======
+  onClose,
+}: {
+  placa: PlacaResumo
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
   onClose: () => void
 }) {
   const [qtdPecas, setQtdPecas] = useState(0)
@@ -70,7 +76,10 @@ export default function PlacaDetalhe({
   }, [onClose])
 
   const campos: [string, string | undefined][] = [
+<<<<<<< HEAD
     ['Consultor', consultorNome],
+=======
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
     ['Beneficiário', dados['Beneficiário']],
     ['Cidade', dados['Cidade']],
     ['Veículo', modeloDoVeiculo(dados['Veículo'])],
@@ -136,9 +145,13 @@ export default function PlacaDetalhe({
                 <dt className="text-xs uppercase tracking-wide text-[var(--cor-texto-suave)]">
                   Observação
                 </dt>
+<<<<<<< HEAD
                 <dd className="text-[var(--cor-texto-suave)] whitespace-pre-line">
                   {dados['Observação']}
                 </dd>
+=======
+                <dd className="text-[var(--cor-texto-suave)]">{dados['Observação']}</dd>
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
               </div>
             )}
           </dl>
@@ -187,4 +200,8 @@ export default function PlacaDetalhe({
       </div>
     </div>
   )
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d

@@ -4,8 +4,17 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { lerTextoDaImagem } from '@/lib/ocr'
 import { useToast } from '@/components/Toast'
+<<<<<<< HEAD
 import SeletorPlaca from '@/components/SeletorPlaca'
 import type { PlacaLinha } from '@/components/ListaPlacas'
+=======
+
+type Placa = {
+  id: string
+  placa: string
+  consultor_id: string
+}
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
 
 type Consultor = {
   id: string
@@ -20,8 +29,14 @@ type Peca = {
 }
 
 export default function PecasPage() {
+<<<<<<< HEAD
   const [consultores, setConsultores] = useState<Consultor[]>([])
   const [placaSelecionada, setPlacaSelecionada] = useState<PlacaLinha | null>(null)
+=======
+  const [placas, setPlacas] = useState<Placa[]>([])
+  const [consultores, setConsultores] = useState<Consultor[]>([])
+  const [placaSelecionada, setPlacaSelecionada] = useState('')
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
   const [pecas, setPecas] = useState<Peca[]>([])
   const [nomePeca, setNomePeca] = useState('')
   const [valorPeca, setValorPeca] = useState('')
@@ -33,6 +48,18 @@ export default function PecasPage() {
   const supabase = createClient()
   const { mostrarToast } = useToast()
 
+<<<<<<< HEAD
+=======
+  async function carregarPlacas() {
+    const { data, error } = await supabase.from('placas').select('id, placa, consultor_id')
+    if (error) {
+      mostrarToast('Não foi possível carregar as placas. Verifique sua conexão.', 'erro')
+      return
+    }
+    if (data) setPlacas(data)
+  }
+
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
   async function carregarConsultores() {
     const { data } = await supabase.from('profiles').select('id, nome')
     if (data) setConsultores(data)
@@ -53,12 +80,21 @@ export default function PecasPage() {
   }
 
   useEffect(() => {
+<<<<<<< HEAD
+=======
+    carregarPlacas()
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
     carregarConsultores()
   }, [])
 
   useEffect(() => {
+<<<<<<< HEAD
     if (placaSelecionada) carregarPecas(placaSelecionada.id)
   }, [placaSelecionada?.id])
+=======
+    if (placaSelecionada) carregarPecas(placaSelecionada)
+  }, [placaSelecionada])
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
 
   async function processarImagem(base64: string) {
     // Base64 aumenta o tamanho em ~33% — 7MB de texto equivale a uns 5MB de imagem real
@@ -131,7 +167,11 @@ const valorNumerico = t.includes(',') || milharBR
     const { data, error } = await supabase
       .from('pecas')
       .insert({
+<<<<<<< HEAD
         placa_id: placaSelecionada.id,
+=======
+        placa_id: placaSelecionada,
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
         nome: nomePeca,
         valor: valorNumerico,
         imagem: imagemColada,
@@ -152,22 +192,48 @@ const valorNumerico = t.includes(',') || milharBR
     setNomePeca('')
     setValorPeca('')
     setImagemColada(null)
+<<<<<<< HEAD
     carregarPecas(placaSelecionada.id)
+=======
+    carregarPecas(placaSelecionada)
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
   }
 
   const total = pecas.reduce((soma, p) => soma + Number(p.valor), 0)
 
+<<<<<<< HEAD
   const consultorResponsavel = consultores.find((c) => c.id === placaSelecionada?.consultor_id)
+=======
+  const consultorResponsavel = consultores.find(
+    (c) => c.id === placas.find((p) => p.id === placaSelecionada)?.consultor_id
+  )
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
 
   return (
     <div className="pagina p-8 max-w-2xl">
       <h1 className="fonte-titulo text-xl font-bold mb-4">Peças</h1>
 
+<<<<<<< HEAD
       <SeletorPlaca
         selecionada={placaSelecionada}
         onSelecionar={setPlacaSelecionada}
         consultores={consultores}
       />
+=======
+      <label className="block mb-1 text-sm font-medium text-[var(--cor-texto-suave)]">Placa</label>
+      <select
+        value={placaSelecionada}
+        onChange={(e) => setPlacaSelecionada(e.target.value)}
+        className="campo-input mb-2"
+      >
+        <option value="">Selecione a placa...</option>
+        {placas.map((p) => (
+          <option key={p.id} value={p.id}>
+            {p.placa}
+          </option>
+        ))}
+      </select>
+>>>>>>> 20b3ce9c853642ffcf09e249833685434751fe6d
 
       {placaSelecionada && (
         <p className="text-sm text-[var(--cor-texto-suave)] mb-6">
