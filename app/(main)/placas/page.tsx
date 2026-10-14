@@ -289,9 +289,9 @@ export default function PlacasPage() {
             <span>
               <strong>{p.placa}</strong> — {consultores.find((c) => c.id === p.consultor_id)?.nome || 'Consultor não identificado'}
             </span>
-            {p.dados_extra?.Cliente && (
-              <span className="text-[var(--cor-texto-suave)]">Cliente: {p.dados_extra.Cliente}</span>
-            )}
+            {p.dados_extra?.['Beneficiário'] && (
+  <span className="text-[var(--cor-texto-suave)]">{p.dados_extra['Beneficiário']}</span>
+)}
           </div>
         ))}
       </div>
