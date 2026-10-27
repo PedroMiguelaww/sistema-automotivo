@@ -7,6 +7,7 @@ const abas = [
   { nome: 'Placas', caminho: '/placas' },
   { nome: 'Peças', caminho: '/pecas' },
   { nome: 'Mecânica', caminho: '/mecanica' },
+  { nome: 'Reboque', caminho: '/reboque' },
 ]
 
 export default function NavBar() {

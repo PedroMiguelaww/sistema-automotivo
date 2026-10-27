@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useToast } from '@/components/Toast'
 import SeletorPlaca from '@/components/SeletorPlaca'
 import type { PlacaLinha } from '@/components/ListaPlacas'
+import { STATUS_LISTA, STATUS_FINAL, corDoStatus } from '@/lib/status'
 
 type Consultor = {
   id: string
@@ -18,13 +19,12 @@ type HistoricoItem = {
   created_at: string
 }
 
-const STATUS_ORDEM = ['Aguardando avaliação', 'Procurando peça', 'Consertando', 'Finalizado']
-
-const STATUS_COR: Record<string, string> = {
-  'Aguardando avaliação': 'bg-white/10 text-gray-300',
-  'Procurando peça': 'bg-amber-500/15 text-amber-400',
-  'Consertando': 'bg-violet-500/15 text-violet-400',
-  'Finalizado': 'bg-green-500/15 text-green-400',
+function textoDaMudanca(h: HistoricoItem) {
+  if (!h.status_anterior) return `Criado como ${h.status_novo}`
+  const antes = STATUS_LISTA.indexOf(h.status_anterior)
+  const depois = STATUS_LISTA.indexOf(h.status_novo)
+  const voltou = antes >= 0 && depois >= 0 && depois < antes
+  return `${voltou ? '↩ ' : ''}${h.status_anterior} → ${h.status_novo}`
 }
 
 export default function MecanicaPage() {
@@ -33,6 +33,8 @@ export default function MecanicaPage() {
   const [atualizarLista, setAtualizarLista] = useState(0)
   const [historico, setHistorico] = useState<HistoricoItem[]>([])
   const [atualizando, setAtualizando] = useState(false)
+  const [confirmarFinalizar, setConfirmarFinalizar] = useState(false)
+  const travado = useRef(false) // impede clique duplo
 
   const supabase = createClient()
   const { mostrarToast } = useToast()
@@ -42,7 +44,7 @@ export default function MecanicaPage() {
     if (data) setConsultores(data)
   }
 
-  async function carregarDetalhe(placaId: string) {
+  async function carregarHistorico(placaId: string) {
     const { data, error } = await supabase
       .from('status_historico')
       .select('id, status_anterior, status_novo, created_at')
@@ -61,52 +63,68 @@ export default function MecanicaPage() {
   }, [])
 
   useEffect(() => {
-    if (placaSelecionada) carregarDetalhe(placaSelecionada.id)
+    setConfirmarFinalizar(false)
+    if (placaSelecionada) carregarHistorico(placaSelecionada.id)
+    else setHistorico([])
   }, [placaSelecionada?.id])
 
-  async function avancarStatus() {
-    if (atualizando || !placaSelecionada) return
+  // Troca a etapa para qualquer outra (avançar, pular ou voltar)
+  async function mudarStatus(novo: string) {
+    if (!placaSelecionada || travado.current) return
+    const anterior = placaSelecionada.status
+    if (novo === anterior) return
 
-    const indexAtual = STATUS_ORDEM.indexOf(statusAtual)
-    const proximo = STATUS_ORDEM[indexAtual + 1]
-    if (!proximo) return
-
+    travado.current = true
     setAtualizando(true)
+    setConfirmarFinalizar(false)
 
     const { data: { user } } = await supabase.auth.getUser()
 
     const { error: erroUpdate } = await supabase
       .from('placas')
-      .update({ status: proximo })
+      .update({ status: novo })
       .eq('id', placaSelecionada.id)
 
     if (erroUpdate) {
       mostrarToast('Não foi possível atualizar o status. Tente novamente.', 'erro')
+    } else {
+      const { error: erroHistorico } = await supabase.from('status_historico').insert({
+        placa_id: placaSelecionada.id,
+        status_anterior: anterior,
+        status_novo: novo,
+        atualizado_por: user?.id,
+      })
+
+      if (erroHistorico) {
+        mostrarToast('Status atualizado, mas o histórico não foi registrado.', 'erro')
+      } else {
+        mostrarToast(`Status atualizado para "${novo}"`)
+      }
+
+      setPlacaSelecionada({ ...placaSelecionada, status: novo })
+      setAtualizarLista((n) => n + 1)
+      await carregarHistorico(placaSelecionada.id)
+    }
+
+    // pequena pausa antes de liberar de novo, para não valer clique duplo
+    setTimeout(() => {
+      travado.current = false
       setAtualizando(false)
+    }, 700)
+  }
+
+  function pedirMudanca(novo: string) {
+    if (novo === STATUS_FINAL) {
+      setConfirmarFinalizar(true)
       return
     }
-
-    const { error: erroHistorico } = await supabase.from('status_historico').insert({
-      placa_id: placaSelecionada.id,
-      status_anterior: statusAtual,
-      status_novo: proximo,
-      atualizado_por: user?.id,
-    })
-
-    if (erroHistorico) {
-      mostrarToast('Status atualizado, mas o histórico não foi registrado.', 'erro')
-    } else {
-      mostrarToast(`Status atualizado para "${proximo}"`)
-    }
-
-    setPlacaSelecionada({ ...placaSelecionada, status: proximo })
-    setAtualizarLista((n) => n + 1)
-    await carregarDetalhe(placaSelecionada.id)
-    setAtualizando(false)
+    mudarStatus(novo)
   }
 
   const statusAtual = placaSelecionada?.status || ''
-  const proximoStatus = STATUS_ORDEM[STATUS_ORDEM.indexOf(statusAtual) + 1]
+  const proximoStatus = STATUS_LISTA[STATUS_LISTA.indexOf(statusAtual) + 1]
+  const ultima = historico[0]
+  const podeDesfazer = !!ultima && !!ultima.status_anterior && ultima.status_novo === statusAtual
 
   const consultorResponsavel = consultores.find((c) => c.id === placaSelecionada?.consultor_id)
 
@@ -129,18 +147,74 @@ export default function MecanicaPage() {
 
       {placaSelecionada && statusAtual && (
         <>
-          <div className="cartao mb-6">
-            <p className="text-xs text-[var(--cor-texto-suave)] mb-2 uppercase tracking-wide">Status atual</p>
-            <span className={`inline-block px-3 py-1.5 rounded-full font-semibold text-sm mb-4 ${STATUS_COR[statusAtual]}`}>
-              {statusAtual}
-            </span>
+          <div className="cartao mb-6 space-y-4">
+            <div>
+              <p className="text-xs text-[var(--cor-texto-suave)] mb-2 uppercase tracking-wide">Status atual</p>
+              <span className={`inline-block px-3 py-1.5 rounded-full font-semibold text-sm ${corDoStatus(statusAtual)}`}>
+                {statusAtual}
+              </span>
+            </div>
 
-            {proximoStatus ? (
-              <button onClick={avancarStatus} disabled={atualizando} className="botao-principal w-full">
-                {atualizando ? 'Atualizando...' : `Avançar para "${proximoStatus}"`}
-              </button>
+            {confirmarFinalizar ? (
+              <div className="border border-[var(--cor-borda)] rounded-[var(--raio)] p-3 space-y-3">
+                <p className="text-sm">Finalizar esta placa? Você ainda poderá desfazer logo depois.</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => mudarStatus(STATUS_FINAL)}
+                    disabled={atualizando}
+                    className="botao-principal flex-1"
+                  >
+                    Sim, finalizar
+                  </button>
+                  <button
+                    onClick={() => setConfirmarFinalizar(false)}
+                    className="botao-secundario flex-1"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
             ) : (
-              <p className="text-green-400 text-sm font-medium">✓ Atendimento finalizado</p>
+              <>
+                {proximoStatus ? (
+                  <button
+                    onClick={() => pedirMudanca(proximoStatus)}
+                    disabled={atualizando}
+                    className="botao-principal w-full"
+                  >
+                    {atualizando ? 'Atualizando...' : `Avançar para "${proximoStatus}"`}
+                  </button>
+                ) : (
+                  <p className="text-green-400 text-sm font-medium">✓ Atendimento finalizado</p>
+                )}
+
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <select
+                    value=""
+                    onChange={(e) => e.target.value && pedirMudanca(e.target.value)}
+                    disabled={atualizando}
+                    className="campo-input flex-1"
+                    aria-label="Ir para outra etapa"
+                  >
+                    <option value="">Ir para outra etapa...</option>
+                    {STATUS_LISTA.filter((s) => s !== statusAtual).map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+
+                  {podeDesfazer && (
+                    <button
+                      onClick={() => mudarStatus(ultima.status_anterior as string)}
+                      disabled={atualizando}
+                      className="botao-secundario"
+                    >
+                      ↩ Desfazer (voltar para &quot;{ultima.status_anterior}&quot;)
+                    </button>
+                  )}
+                </div>
+              </>
             )}
           </div>
 
@@ -152,9 +226,7 @@ export default function MecanicaPage() {
             {historico.map((h) => (
               <div key={h.id} className="relative">
                 <div className="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-[var(--cor-primaria)] border-2 border-[var(--cor-fundo)]" />
-                <p className="text-sm font-medium">
-                  {h.status_anterior ? `${h.status_anterior} → ${h.status_novo}` : `Criado como ${h.status_novo}`}
-                </p>
+                <p className="text-sm font-medium">{textoDaMudanca(h)}</p>
                 <p className="text-xs text-[var(--cor-texto-suave)]">
                   {new Date(h.created_at).toLocaleString('pt-BR')}
                 </p>

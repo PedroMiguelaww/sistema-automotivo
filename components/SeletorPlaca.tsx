@@ -1,7 +1,7 @@
 'use client'
 
 import ListaPlacas, { type ConsultorNome, type PlacaLinha } from '@/components/ListaPlacas'
-import { STATUS_COR } from '@/components/PlacaDetalhe'
+import { corDoStatus } from '@/lib/status'
 
 // Escolhe uma placa na lista (com busca e "carregar mais").
 // Depois de escolhida, mostra só ela, com o botão "Trocar".
@@ -23,7 +23,7 @@ export default function SeletorPlaca({
           <strong className="text-sm">{selecionada.placa}</strong>
           <span
             className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-              STATUS_COR[selecionada.status] || 'bg-white/10 text-gray-300'
+              corDoStatus(selecionada.status)
             }`}
           >
             {selecionada.status}

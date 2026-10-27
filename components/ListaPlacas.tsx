@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react'
 import { usePlacasPaginadas } from '@/lib/usePlacasPaginadas'
 import { limparBusca, montarFiltroBusca } from '@/lib/busca'
-import { modeloDoVeiculo, STATUS_COR, type PlacaResumo } from '@/components/PlacaDetalhe'
+import { modeloDoVeiculo, type PlacaResumo } from '@/components/PlacaDetalhe'
+import { corDoStatus } from '@/lib/status'
 
 export type PlacaLinha = PlacaResumo & { consultor_id: string }
 export type ConsultorNome = { id: string; nome: string }
@@ -109,7 +110,7 @@ export default function ListaPlacas({
               </span>
               <span
                 className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold ${
-                  STATUS_COR[p.status] || 'bg-white/10 text-gray-300'
+                  corDoStatus(p.status)
                 }`}
               >
                 {p.status}

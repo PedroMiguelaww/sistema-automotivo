@@ -2,19 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
+import { STATUS_COR, corDoStatus } from '@/lib/status'
+
+export { STATUS_COR }
 
 export type PlacaResumo = {
   id: string
   placa: string
   status: string
   dados_extra: Record<string, string> | null
-}
-
-export const STATUS_COR: Record<string, string> = {
-  'Aguardando avaliação': 'bg-white/10 text-gray-300',
-  'Procurando peça': 'bg-amber-500/15 text-amber-400',
-  'Consertando': 'bg-violet-500/15 text-violet-400',
-  'Finalizado': 'bg-green-500/15 text-green-400',
 }
 
 // "RZS7J95-STRADA VOLCANO 1.3" -> "STRADA VOLCANO 1.3"
@@ -43,6 +39,8 @@ export default function PlacaDetalhe({
 }) {
   const [qtdPecas, setQtdPecas] = useState(0)
   const [totalPecas, setTotalPecas] = useState(0)
+  const [reboquesMes, setReboquesMes] = useState(0)
+  const [reboquesAno, setReboquesAno] = useState(0)
 
   const dados = placa.dados_extra || {}
   const temDados = Object.keys(dados).length > 0
@@ -57,6 +55,23 @@ export default function PlacaDetalhe({
         if (data) {
           setQtdPecas(data.length)
           setTotalPecas(data.reduce((soma, p) => soma + Number(p.valor), 0))
+        }
+      })
+  }, [placa.id])
+
+  useEffect(() => {
+    const agora = new Date()
+    const inicioAno = new Date(agora.getFullYear(), 0, 1)
+    const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1)
+    createClient()
+      .from('reboques')
+      .select('data_hora')
+      .eq('placa_id', placa.id)
+      .gte('data_hora', inicioAno.toISOString())
+      .then(({ data }) => {
+        if (data) {
+          setReboquesAno(data.length)
+          setReboquesMes(data.filter((r) => new Date(r.data_hora) >= inicioMes).length)
         }
       })
   }, [placa.id])
@@ -102,7 +117,7 @@ export default function PlacaDetalhe({
             <h2 className="fonte-titulo text-xl font-bold">{placa.placa}</h2>
             <span
               className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
-                STATUS_COR[placa.status] || 'bg-white/10 text-gray-300'
+                corDoStatus(placa.status)
               }`}
             >
               {placa.status}
@@ -153,6 +168,13 @@ export default function PlacaDetalhe({
             Peças ({qtdPecas})
           </span>
           <strong className="text-[var(--cor-primaria-clara)]">R$ {totalPecas.toFixed(2)}</strong>
+        </div>
+
+        <div className="mt-2 text-sm flex justify-between">
+          <span className="text-[var(--cor-texto-suave)]">Reboques (este mês / este ano)</span>
+          <strong>
+            {reboquesMes} / {reboquesAno}
+          </strong>
         </div>
 
         {(telefone || mapa) && (
