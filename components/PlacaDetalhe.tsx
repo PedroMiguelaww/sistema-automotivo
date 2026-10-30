@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
-import { STATUS_COR, corDoStatus } from '@/lib/status'
-
-export { STATUS_COR }
+import { lerCampo } from '@/lib/campos0800'
+import { corDoStatus } from '@/lib/status'
 
 export type PlacaResumo = {
   id: string
@@ -41,6 +40,7 @@ export default function PlacaDetalhe({
   const [totalPecas, setTotalPecas] = useState(0)
   const [reboquesMes, setReboquesMes] = useState(0)
   const [reboquesAno, setReboquesAno] = useState(0)
+  const [erroReboques, setErroReboques] = useState(false)
 
   const dados = placa.dados_extra || {}
   const temDados = Object.keys(dados).length > 0
@@ -65,13 +65,18 @@ export default function PlacaDetalhe({
     const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1)
     createClient()
       .from('reboques')
-      .select('data_hora')
+      .select('data')
       .eq('placa_id', placa.id)
-      .gte('data_hora', inicioAno.toISOString())
-      .then(({ data }) => {
+      .gte('data', inicioAno.toISOString())
+      .then(({ data, error }) => {
+        if (error) {
+          // melhor mostrar "—" do que exibir 0 e parecer que não há reboques
+          setErroReboques(true)
+          return
+        }
         if (data) {
           setReboquesAno(data.length)
-          setReboquesMes(data.filter((r) => new Date(r.data_hora) >= inicioMes).length)
+          setReboquesMes(data.filter((r) => new Date(r.data) >= inicioMes).length)
         }
       })
   }, [placa.id])
@@ -86,19 +91,20 @@ export default function PlacaDetalhe({
 
   const campos: [string, string | undefined][] = [
     ['Consultor', consultorNome],
-    ['Beneficiário', dados['Beneficiário']],
-    ['Cidade', dados['Cidade']],
-    ['Veículo', modeloDoVeiculo(dados['Veículo'])],
-    ['Marca', dados['Marca']],
-    ['Cor', dados['Cor']],
-    ['Adesão', dados['Adesão']],
-    ['Motivo', dados['Motivo']],
-    ['Data/Hora', dados['Data/Hora']],
-    ['Protocolo', dados['Protocolo']],
+    ['Beneficiário', lerCampo(dados, 'beneficiario')],
+    ['Cidade', lerCampo(dados, 'cidade')],
+    ['Veículo', modeloDoVeiculo(lerCampo(dados, 'veiculo'))],
+    ['Marca', lerCampo(dados, 'marca')],
+    ['Cor', lerCampo(dados, 'cor')],
+    ['Adesão', lerCampo(dados, 'adesao')],
+    ['Motivo', lerCampo(dados, 'motivo')],
+    ['Data/Hora', lerCampo(dados, 'data/hora')],
+    ['Protocolo', lerCampo(dados, 'protocolo')],
   ]
 
-  const telefone = soDigitos(dados['Telefones'])
-  const mapa = linkSeguro(dados['Link Origem'])
+  const observacao = lerCampo(dados, 'observacao')
+  const telefone = soDigitos(lerCampo(dados, 'telefones'))
+  const mapa = linkSeguro(lerCampo(dados, 'link origem'))
 
   return (
     <div
@@ -146,13 +152,13 @@ export default function PlacaDetalhe({
                 )
             )}
 
-            {dados['Observação'] && (
+            {observacao && (
               <div>
                 <dt className="text-xs uppercase tracking-wide text-[var(--cor-texto-suave)]">
                   Observação
                 </dt>
                 <dd className="text-[var(--cor-texto-suave)] whitespace-pre-line">
-                  {dados['Observação']}
+                  {observacao}
                 </dd>
               </div>
             )}
@@ -172,9 +178,7 @@ export default function PlacaDetalhe({
 
         <div className="mt-2 text-sm flex justify-between">
           <span className="text-[var(--cor-texto-suave)]">Reboques (este mês / este ano)</span>
-          <strong>
-            {reboquesMes} / {reboquesAno}
-          </strong>
+          <strong>{erroReboques ? '—' : `${reboquesMes} / ${reboquesAno}`}</strong>
         </div>
 
         {(telefone || mapa) && (

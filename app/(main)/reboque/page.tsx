@@ -6,6 +6,7 @@ import { useToast } from '@/components/Toast'
 import SeletorPlaca from '@/components/SeletorPlaca'
 import type { PlacaLinha } from '@/components/ListaPlacas'
 import { modeloDoVeiculo } from '@/components/PlacaDetalhe'
+import { lerCampo } from '@/lib/campos0800'
 import {
   LIMITE_MENSAL,
   LIMITE_ANUAL,
@@ -158,8 +159,8 @@ export default function ReboquePage() {
   const porMes = NOMES_MESES.map((_, m) => doAno.filter((r) => r.quando.getMonth() === m).length)
   const lista = mesFiltro === null ? doAno : doAno.filter((r) => r.quando.getMonth() === mesFiltro)
 
-  const modelo = modeloDoVeiculo(placaSelecionada?.dados_extra?.['Veículo'])
-  const beneficiario = placaSelecionada?.dados_extra?.['Beneficiário']
+  const modelo = modeloDoVeiculo(lerCampo(placaSelecionada?.dados_extra, 'veiculo'))
+  const beneficiario = lerCampo(placaSelecionada?.dados_extra, 'beneficiario')
   const consultorResponsavel = consultores.find((c) => c.id === placaSelecionada?.consultor_id)
 
   return (

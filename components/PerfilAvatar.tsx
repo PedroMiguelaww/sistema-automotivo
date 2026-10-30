@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 
@@ -28,7 +29,14 @@ export default function PerfilAvatar() {
 
     return (
     <div className="fixed top-4 left-4 z-10 flex items-center gap-2">
-      <img src="/logo-proseg.png" alt="Proseg" className="h-6 w-auto" />
+      <Image
+        src="/logo-proseg.png"
+        alt="Proseg"
+        width={84}
+        height={24}
+        priority
+        className="h-6 w-auto"
+      />
       <Link
         href="/perfil"
         className="w-8 h-8 rounded-full bg-[var(--cor-primaria)] text-white text-sm font-bold flex items-center justify-center opacity-20 hover:opacity-100 transition-opacity duration-200"

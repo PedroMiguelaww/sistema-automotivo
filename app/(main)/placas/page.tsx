@@ -6,6 +6,8 @@ import { lerTextoDaImagem } from '@/lib/ocr'
 import { useToast } from '@/components/Toast'
 import ListaPlacas from '@/components/ListaPlacas'
 import { lerMensagem0800 } from '@/lib/mensagem0800'
+import { lerCampo } from '@/lib/campos0800'
+import { normalizarTexto } from '@/lib/texto'
 
 type Consultor = {
   id: string
@@ -46,15 +48,6 @@ export default function PlacasPage() {
     carregarConsultores()
   }, [])
 
-  function normalizarNome(nome: string) {
-    return nome
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .replace(/\s+/g, ' ')
-      .trim()
-  }
-
   function processarMensagem(texto: string) {
     setMensagem(texto)
     setAviso('')
@@ -62,8 +55,9 @@ export default function PlacasPage() {
     const campos = lerMensagem0800(texto)
 
     let placaEncontrada = ''
-    if (campos['Veículo']) {
-      const matchPlaca = campos['Veículo'].match(/^([A-Z]{3}[0-9][A-Z0-9][0-9]{2})/)
+    const veiculo = lerCampo(campos, 'veiculo')
+    if (veiculo) {
+      const matchPlaca = veiculo.match(/^([A-Z]{3}[0-9][A-Z0-9][0-9]{2})/)
       if (matchPlaca) {
         placaEncontrada = matchPlaca[1]
       }
@@ -74,23 +68,24 @@ export default function PlacasPage() {
       setAviso('Não consegui identificar a placa automaticamente. Confira o campo Veículo na mensagem.')
     }
 
-    if (campos['Consultor']) {
-      const nomeConsultor = normalizarNome(campos['Consultor'])
+    const consultor = lerCampo(campos, 'consultor')
+    if (consultor) {
+      const nomeConsultor = normalizarTexto(consultor)
 
       let encontrado = consultores.find(
-        (c) => normalizarNome(c.nome || '') === nomeConsultor
+        (c) => normalizarTexto(c.nome || '') === nomeConsultor
       )
 
       if (!encontrado) {
         encontrado = consultores.find((c) => {
-          const nomeCadastrado = normalizarNome(c.nome || '')
+          const nomeCadastrado = normalizarTexto(c.nome || '')
           return nomeCadastrado.includes(nomeConsultor) || nomeConsultor.includes(nomeCadastrado)
         })
       }
 
       if (encontrado) {
         setConsultorSelecionado(encontrado.id)
-        if (normalizarNome(encontrado.nome) !== nomeConsultor) {
+        if (normalizarTexto(encontrado.nome) !== nomeConsultor) {
           setAviso('Consultor identificado por aproximação — confira se está correto.')
         }
       } else {

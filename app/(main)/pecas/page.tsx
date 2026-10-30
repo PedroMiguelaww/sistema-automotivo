@@ -16,7 +16,6 @@ type Peca = {
   id: string
   nome: string
   valor: number
-  imagem: string | null
 }
 
 export default function PecasPage() {
@@ -39,9 +38,11 @@ export default function PecasPage() {
   }
 
   async function carregarPecas(placaId: string) {
+    // Não trazemos a coluna "imagem": são data URLs de até 5MB que a lista
+    // não exibe. Se um dia for exibir, mover para o Storage e usar imagem_path.
     const { data, error } = await supabase
       .from('pecas')
-      .select('id, nome, valor, imagem')
+      .select('id, nome, valor')
       .eq('placa_id', placaId)
       .order('created_at', { ascending: false })
 

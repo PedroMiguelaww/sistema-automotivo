@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { usePlacasPaginadas } from '@/lib/usePlacasPaginadas'
 import { limparBusca, montarFiltroBusca } from '@/lib/busca'
+import { lerCampo } from '@/lib/campos0800'
 import { modeloDoVeiculo, type PlacaResumo } from '@/components/PlacaDetalhe'
 import { corDoStatus } from '@/lib/status'
 
@@ -90,8 +91,8 @@ export default function ListaPlacas({
         )}
 
         {itens.map((p) => {
-          const modelo = modeloDoVeiculo(p.dados_extra?.['Veículo'])
-          const beneficiario = p.dados_extra?.['Beneficiário']
+          const modelo = modeloDoVeiculo(lerCampo(p.dados_extra, 'veiculo'))
+          const beneficiario = lerCampo(p.dados_extra, 'beneficiario')
           const nomeConsultor = consultores?.find((c) => c.id === p.consultor_id)?.nome
           const subtitulo = [nomeConsultor, beneficiario].filter(Boolean).join(' · ')
 
