@@ -20,6 +20,9 @@
 # production
 /build
 
+# arquivos do OCR, gerados por scripts/copiar-ocr.mjs
+/public/ocr/
+
 # misc
 .DS_Store
 *.pem

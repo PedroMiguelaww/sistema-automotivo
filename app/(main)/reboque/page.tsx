@@ -139,8 +139,8 @@ export default function ReboquePage() {
   async function apagar(id: string) {
     if (!placaSelecionada) return
     setConfirmandoId(null)
-    const { error } = await supabase.from('reboques').delete().eq('id', id)
-    if (error) {
+    const { data, error } = await supabase.from('reboques').delete().eq('id', id).select('id')
+    if (error || !data?.length) {
       mostrarToast('Não foi possível apagar o registro.', 'erro')
       return
     }

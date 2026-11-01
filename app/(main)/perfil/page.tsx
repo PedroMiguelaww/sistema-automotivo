@@ -5,6 +5,8 @@ import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import PlacaDetalhe from '@/components/PlacaDetalhe'
 import ListaPlacas, { type ConsultorNome, type PlacaLinha } from '@/components/ListaPlacas'
+import GerenciarUsuarios from '@/components/GerenciarUsuarios'
+import DuasEtapas from '@/components/DuasEtapas'
 
 type Perfil = {
   id: string
@@ -43,8 +45,8 @@ export default function PerfilPage() {
 
     setPerfil(perfilData)
 
-    // o super admin precisa dos nomes dos consultores (para mostrar e para buscar)
-    if (perfilData.role === 'super_admin') {
+    // quem vê todas as placas precisa dos nomes dos consultores (para mostrar e para buscar)
+    if (perfilData.role === 'super_admin' || perfilData.role === 'operador') {
       const { data: lista } = await supabase.from('profiles').select('id, nome')
       if (lista) setConsultores(lista)
     }
@@ -86,6 +88,7 @@ export default function PerfilPage() {
   }
 
   const ehSuperAdmin = perfil.role === 'super_admin'
+  const veTodas = ehSuperAdmin || perfil.role === 'operador'
 
   return (
     <div className="pagina p-8 max-w-2xl">
@@ -93,11 +96,11 @@ export default function PerfilPage() {
       <p className="text-[var(--cor-texto-suave)] mb-6 capitalize">{perfil.role.replace('_', ' ')}</p>
 
       <h2 className="fonte-titulo text-lg font-bold mb-3">
-        {ehSuperAdmin ? 'Todas as placas' : 'Minhas placas'}
+        {veTodas ? 'Todas as placas' : 'Minhas placas'}
       </h2>
 
       <div className="mb-8">
-        {ehSuperAdmin ? (
+        {veTodas ? (
           <ListaPlacas
             consultores={consultores}
             onAbrir={setPlacaAberta}
@@ -112,6 +115,10 @@ export default function PerfilPage() {
         )}
       </div>
 
+      {ehSuperAdmin && <GerenciarUsuarios meuId={perfil.id} />}
+
+      <DuasEtapas />
+
       <button onClick={handleSair} className="botao-secundario">
         Sair
       </button>
@@ -120,7 +127,7 @@ export default function PerfilPage() {
         <PlacaDetalhe
           placa={placaAberta}
           consultorNome={
-            ehSuperAdmin
+            veTodas
               ? consultores.find((c) => c.id === placaAberta.consultor_id)?.nome
               : undefined
           }

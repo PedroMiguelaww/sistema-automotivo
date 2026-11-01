@@ -1,5 +1,7 @@
 -- ============================================================================
---  02-rls-politicas.sql  —  ALTERA PERMISSÕES (ler o aviso antes de rodar)
+--  02-rls-politicas.sql  —  SUBSTITUÍDO PELO 04-seguranca.sql
+-- ----------------------------------------------------------------------------
+--  Não rode de novo, a não ser para reverter o 04: ele apaga as regras atuais.
 -- ----------------------------------------------------------------------------
 --  Problema que este arquivo resolve:
 --    Hoje qualquer pessoa logada abre qualquer placa de qualquer consultor.

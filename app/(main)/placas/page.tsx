@@ -7,7 +7,7 @@ import { useToast } from '@/components/Toast'
 import ListaPlacas from '@/components/ListaPlacas'
 import { lerMensagem0800 } from '@/lib/mensagem0800'
 import { lerCampo } from '@/lib/campos0800'
-import { normalizarTexto } from '@/lib/texto'
+import { identificarConsultor } from '@/lib/consultor'
 
 type Consultor = {
   id: string
@@ -41,7 +41,11 @@ export default function PlacasPage() {
     if (error) {
       mostrarToast('Não foi possível carregar os dados. Verifique sua conexão.', 'erro')
     }
-    if (data) setConsultores(data)
+    if (data) {
+      setConsultores(data)
+      // o consultor só enxerga o próprio nome: já deixa escolhido
+      if (data.length === 1) setConsultorSelecionado(data[0].id)
+    }
   }
 
   useEffect(() => {
@@ -70,25 +74,15 @@ export default function PlacasPage() {
 
     const consultor = lerCampo(campos, 'consultor')
     if (consultor) {
-      const nomeConsultor = normalizarTexto(consultor)
+      const { exato, sugestoes } = identificarConsultor(consultor, consultores)
 
-      let encontrado = consultores.find(
-        (c) => normalizarTexto(c.nome || '') === nomeConsultor
-      )
+      // sem nome idêntico, não pode ficar valendo o consultor da mensagem anterior
+      setConsultorSelecionado(exato?.id ?? (consultores.length === 1 ? consultores[0].id : ''))
 
-      if (!encontrado) {
-        encontrado = consultores.find((c) => {
-          const nomeCadastrado = normalizarTexto(c.nome || '')
-          return nomeCadastrado.includes(nomeConsultor) || nomeConsultor.includes(nomeCadastrado)
-        })
-      }
-
-      if (encontrado) {
-        setConsultorSelecionado(encontrado.id)
-        if (normalizarTexto(encontrado.nome) !== nomeConsultor) {
-          setAviso('Consultor identificado por aproximação — confira se está correto.')
-        }
-      } else {
+      if (!exato && sugestoes.length > 0) {
+        const nomes = sugestoes.map((c) => c.nome).join(', ')
+        setAviso((prev) => `${prev} Consultor "${consultor}" sem nome idêntico. Parecido: ${nomes}. Selecione na lista.`.trim())
+      } else if (!exato) {
         setAviso((prev) => prev + ' Consultor não encontrado na lista — selecione manualmente.')
       }
     }
@@ -166,7 +160,7 @@ export default function PlacasPage() {
     mostrarToast(`Placa ${placaDetectada} cadastrada`)
     setMensagem('')
     setPlacaDetectada('')
-    setConsultorSelecionado('')
+    setConsultorSelecionado(consultores.length === 1 ? consultores[0].id : '')
     setDadosExtra({})
     setAviso('')
     setAtualizarLista((n) => n + 1)

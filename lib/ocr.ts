@@ -8,7 +8,14 @@ let workerAtual: Promise<TesseractWorker> | null = null
 
 function obterWorker() {
   if (!workerAtual) {
-    workerAtual = createWorker('por').catch((erro) => {
+    // Arquivos servidos pelo próprio sistema (scripts/copiar-ocr.mjs), sem baixar
+    // código de um CDN externo. O padrão da biblioteca é o cdn.jsdelivr.net.
+    workerAtual = createWorker('por', 1, {
+      workerPath: '/ocr/worker.min.js',
+      corePath: '/ocr/core',
+      langPath: '/ocr/lang',
+      workerBlobURL: false,
+    }).catch((erro) => {
       // se falhar (ex: sem rede na primeira carga), permite tentar de novo
       workerAtual = null
       throw erro

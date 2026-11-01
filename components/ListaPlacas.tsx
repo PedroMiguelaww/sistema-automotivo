@@ -10,7 +10,25 @@ import { corDoStatus } from '@/lib/status'
 export type PlacaLinha = PlacaResumo & { consultor_id: string }
 export type ConsultorNome = { id: string; nome: string }
 
-const CAMPOS = 'id, placa, status, consultor_id, dados_extra'
+// A lista traz só o resumo. Telefone, cidade e os demais dados do cliente
+// são buscados quando alguém abre os detalhes da placa.
+const CAMPOS =
+  'id, placa, status, consultor_id, veiculo:dados_extra->>veiculo, beneficiario:dados_extra->>beneficiario'
+
+type LinhaResumo = Omit<PlacaLinha, 'dados_extra'> & {
+  veiculo: string | null
+  beneficiario: string | null
+}
+
+function paraPlacaLinha({ veiculo, beneficiario, ...placa }: LinhaResumo): PlacaLinha {
+  return {
+    ...placa,
+    dados_extra: {
+      ...(veiculo ? { veiculo } : {}),
+      ...(beneficiario ? { beneficiario } : {}),
+    },
+  }
+}
 
 export default function ListaPlacas({
   consultorId,
@@ -37,7 +55,7 @@ export default function ListaPlacas({
     return () => clearTimeout(t)
   }, [busca])
 
-  const { itens, carregando, temMais, erro, carregarMais } = usePlacasPaginadas<PlacaLinha>({
+  const { itens, carregando, temMais, erro, carregarMais } = usePlacasPaginadas<LinhaResumo>({
     select: CAMPOS,
     termo: limparBusca(termo),
     filtroOr: montarFiltroBusca(termo, consultores),
@@ -90,7 +108,7 @@ export default function ListaPlacas({
           </p>
         )}
 
-        {itens.map((p) => {
+        {itens.map(paraPlacaLinha).map((p) => {
           const modelo = modeloDoVeiculo(lerCampo(p.dados_extra, 'veiculo'))
           const beneficiario = lerCampo(p.dados_extra, 'beneficiario')
           const nomeConsultor = consultores?.find((c) => c.id === p.consultor_id)?.nome

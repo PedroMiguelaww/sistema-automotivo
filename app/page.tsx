@@ -2,26 +2,31 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
+import { precisaDoCodigo } from '@/lib/duasEtapas'
+import CodigoDuasEtapas from '@/components/CodigoDuasEtapas'
 import Image from 'next/image'
 
+type Etapa = 'carregando' | 'login' | 'codigo' | 'esqueci' | 'email-enviado'
+
 export default function HomePage() {
-  const [logado, setLogado] = useState<boolean | null>(null)
+  const [etapa, setEtapa] = useState<Etapa>('carregando')
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
-  const [lembrar, setLembrar] = useState(true)
   const [erro, setErro] = useState('')
+  const [enviando, setEnviando] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
     async function checar() {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        router.push('/perfil')
+      if (!user) {
+        setEtapa('login')
+      } else if (await precisaDoCodigo(supabase)) {
+        setEtapa('codigo')
       } else {
-        setLogado(false)
+        router.push('/perfil')
       }
     }
     checar()
@@ -30,6 +35,7 @@ export default function HomePage() {
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     setErro('')
+    setEnviando(true)
 
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithPassword({
@@ -38,11 +44,37 @@ export default function HomePage() {
     })
 
     if (error) {
+      setEnviando(false)
       setErro('E-mail ou senha incorretos')
       return
     }
 
+    setSenha('')
+    if (await precisaDoCodigo(supabase)) {
+      setEnviando(false)
+      setEtapa('codigo')
+      return
+    }
+
     router.push('/perfil')
+  }
+
+  async function handleEsqueci(e: React.FormEvent) {
+    e.preventDefault()
+    setEnviando(true)
+
+    // A resposta é a mesma exista ou não a conta, para a tela não revelar quem tem cadastro
+    await createClient().auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/redefinir-senha`,
+    })
+
+    setEnviando(false)
+    setEtapa('email-enviado')
+  }
+
+  async function cancelarCodigo() {
+    await createClient().auth.signOut()
+    setEtapa('login')
   }
 
   return (
@@ -55,9 +87,15 @@ export default function HomePage() {
         Gestão e comunicação integrada para atendimento automotivo.
       </p>
 
-      {logado === null ? (
+      {etapa === 'carregando' && (
         <p className="text-sm text-[var(--cor-texto-suave)]">Carregando...</p>
-      ) : (
+      )}
+
+      {etapa === 'codigo' && (
+        <CodigoDuasEtapas onConfirmado={() => router.push('/perfil')} onCancelar={cancelarCodigo} />
+      )}
+
+      {etapa === 'login' && (
         <form onSubmit={handleLogin} className="cartao w-full max-w-sm space-y-3 text-left">
           <input
             type="email"
@@ -77,28 +115,62 @@ export default function HomePage() {
             required
           />
 
-          <label className="flex items-center gap-2 text-sm text-[var(--cor-texto-suave)]">
-            <input
-              type="checkbox"
-              checked={lembrar}
-              onChange={(e) => setLembrar(e.target.checked)}
-            />
-            Lembrar de mim
-          </label>
-
           {erro && <p className="text-red-400 text-sm">{erro}</p>}
 
-          <button type="submit" className="botao-principal w-full">
-            Entrar
+          <button type="submit" disabled={enviando} className="botao-principal w-full">
+            {enviando ? 'Entrando...' : 'Entrar'}
           </button>
 
-          <p className="text-sm text-[var(--cor-texto-suave)] text-center pt-2">
-            Não tem conta?{' '}
-            <Link href="/cadastro" className="text-[var(--cor-primaria)] font-medium">
-              Criar conta
-            </Link>
+          <p className="text-sm text-center pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                setErro('')
+                setEtapa('esqueci')
+              }}
+              className="text-[var(--cor-primaria)] font-medium"
+            >
+              Esqueci minha senha
+            </button>
+          </p>
+          <p className="text-xs text-[var(--cor-texto-suave)] text-center">
+            Precisa de acesso? Fale com o administrador do sistema.
           </p>
         </form>
+      )}
+
+      {etapa === 'esqueci' && (
+        <form onSubmit={handleEsqueci} className="cartao w-full max-w-sm space-y-3 text-left">
+          <p className="text-sm text-[var(--cor-texto-suave)]">
+            Informe seu e-mail para receber o link de redefinição de senha.
+          </p>
+          <input
+            type="email"
+            placeholder="E-mail"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="campo-input"
+            required
+          />
+          <button type="submit" disabled={enviando} className="botao-principal w-full">
+            {enviando ? 'Enviando...' : 'Enviar link'}
+          </button>
+          <button type="button" onClick={() => setEtapa('login')} className="botao-secundario w-full">
+            Voltar
+          </button>
+        </form>
+      )}
+
+      {etapa === 'email-enviado' && (
+        <div className="cartao w-full max-w-sm space-y-3 text-left">
+          <p className="text-sm">
+            Se esse e-mail tiver acesso ao sistema, o link chegará em alguns minutos. Abra o link neste
+            mesmo navegador.
+          </p>
+          <button type="button" onClick={() => setEtapa('login')} className="botao-secundario w-full">
+            Voltar para o login
+          </button>
+        </div>
       )}
     </div>
   )

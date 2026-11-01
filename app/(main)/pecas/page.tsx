@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { lerTextoDaImagem } from '@/lib/ocr'
+import { BUCKET_FOTOS, caminhoDaFoto, problemaNaFoto } from '@/lib/fotos'
 import { useToast } from '@/components/Toast'
 import SeletorPlaca from '@/components/SeletorPlaca'
 import type { PlacaLinha } from '@/components/ListaPlacas'
@@ -24,7 +25,7 @@ export default function PecasPage() {
   const [pecas, setPecas] = useState<Peca[]>([])
   const [nomePeca, setNomePeca] = useState('')
   const [valorPeca, setValorPeca] = useState('')
-  const [imagemColada, setImagemColada] = useState<string | null>(null)
+  const [imagemColada, setImagemColada] = useState<File | null>(null)
   const [lendoImagem, setLendoImagem] = useState(false)
   const [ultimaPecaId, setUltimaPecaId] = useState<string | null>(null)
   const [salvando, setSalvando] = useState(false)
@@ -38,8 +39,7 @@ export default function PecasPage() {
   }
 
   async function carregarPecas(placaId: string) {
-    // Não trazemos a coluna "imagem": são data URLs de até 5MB que a lista
-    // não exibe. Se um dia for exibir, mover para o Storage e usar imagem_path.
+    // A lista não exibe foto. As fotos ficam no Storage (imagem_path).
     const { data, error } = await supabase
       .from('pecas')
       .select('id, nome, valor')
@@ -61,14 +61,8 @@ export default function PecasPage() {
     if (placaSelecionada) carregarPecas(placaSelecionada.id)
   }, [placaSelecionada?.id])
 
-  async function processarImagem(base64: string) {
-    // Base64 aumenta o tamanho em ~33% — 7MB de texto equivale a uns 5MB de imagem real
-    if (base64.length > 7_000_000) {
-      mostrarToast('Imagem muito grande (máx. 5MB)', 'erro')
-      return
-    }
-
-    setImagemColada(base64)
+  async function processarImagem(arquivo: File, base64: string) {
+    setImagemColada(arquivo)
 
     setLendoImagem(true)
     let texto = ''
@@ -88,8 +82,20 @@ export default function PecasPage() {
 
     const primeiraLinha = texto.split('\n').find((l) => l.trim().length > 2)
     if (primeiraLinha && !nomePeca) {
-      setNomePeca(primeiraLinha.trim())
+      setNomePeca(primeiraLinha.trim().slice(0, 300))
     }
+  }
+
+  function lerArquivo(file: File) {
+    const problema = problemaNaFoto(file)
+    if (problema) {
+      mostrarToast(problema, 'erro')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = () => processarImagem(file, reader.result as string)
+    reader.readAsDataURL(file)
   }
 
   async function handleColar(e: React.ClipboardEvent) {
@@ -99,18 +105,14 @@ export default function PecasPage() {
     const file = item.getAsFile()
     if (!file) return
 
-    const reader = new FileReader()
-    reader.onload = () => processarImagem(reader.result as string)
-    reader.readAsDataURL(file)
+    lerArquivo(file)
   }
 
   async function handleFoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
 
-    const reader = new FileReader()
-    reader.onload = () => processarImagem(reader.result as string)
-    reader.readAsDataURL(file)
+    lerArquivo(file)
   }
 
   async function adicionarPeca(e: React.FormEvent) {
@@ -129,19 +131,36 @@ const valorNumerico = t.includes(',') || milharBR
     }
 
     setSalvando(true)
+
+    let imagemPath: string | null = null
+    if (imagemColada) {
+      imagemPath = caminhoDaFoto(placaSelecionada.id, imagemColada.type)
+      const { error: erroFoto } = await supabase.storage
+        .from(BUCKET_FOTOS)
+        .upload(imagemPath, imagemColada, { contentType: imagemColada.type })
+
+      if (erroFoto) {
+        setSalvando(false)
+        mostrarToast('Não foi possível enviar a foto. Tente novamente.', 'erro')
+        return
+      }
+    }
+
     const { data, error } = await supabase
       .from('pecas')
       .insert({
         placa_id: placaSelecionada.id,
         nome: nomePeca,
         valor: valorNumerico,
-        imagem: imagemColada,
+        imagem_path: imagemPath,
       })
-      .select()
+      .select('id')
       .single()
     setSalvando(false)
 
     if (error) {
+      // a peça não foi salva: não deixa a foto solta no Storage
+      if (imagemPath) await supabase.storage.from(BUCKET_FOTOS).remove([imagemPath])
       mostrarToast('Não foi possível adicionar a peça. Tente novamente.', 'erro')
       return
     }
@@ -185,6 +204,7 @@ const valorNumerico = t.includes(',') || milharBR
               value={nomePeca}
               onChange={(e) => setNomePeca(e.target.value)}
               className="campo-input"
+              maxLength={300}
             />
             <input
               type="text"

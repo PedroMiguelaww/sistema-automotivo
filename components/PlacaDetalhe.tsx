@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { lerCampo } from '@/lib/campos0800'
 import { corDoStatus } from '@/lib/status'
+import { lerLinkExterno } from '@/lib/links'
 
 export type PlacaResumo = {
   id: string
@@ -16,11 +17,6 @@ export type PlacaResumo = {
 export function modeloDoVeiculo(veiculo?: string) {
   if (!veiculo) return ''
   return veiculo.replace(/^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}\s*-?\s*/, '').trim()
-}
-
-function linkSeguro(url?: string) {
-  const limpo = (url || '').trim()
-  return /^https:\/\//i.test(limpo) ? limpo : null
 }
 
 function soDigitos(texto?: string) {
@@ -41,9 +37,22 @@ export default function PlacaDetalhe({
   const [reboquesMes, setReboquesMes] = useState(0)
   const [reboquesAno, setReboquesAno] = useState(0)
   const [erroReboques, setErroReboques] = useState(false)
+  // A lista só traz o resumo: os dados completos do cliente vêm ao abrir
+  const [dadosCompletos, setDadosCompletos] = useState<Record<string, string> | null>(null)
 
-  const dados = placa.dados_extra || {}
+  const dados = dadosCompletos || placa.dados_extra || {}
   const temDados = Object.keys(dados).length > 0
+
+  useEffect(() => {
+    createClient()
+      .from('placas')
+      .select('dados_extra')
+      .eq('id', placa.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.dados_extra) setDadosCompletos(data.dados_extra)
+      })
+  }, [placa.id])
 
   useEffect(() => {
     const supabase = createClient()
@@ -104,7 +113,7 @@ export default function PlacaDetalhe({
 
   const observacao = lerCampo(dados, 'observacao')
   const telefone = soDigitos(lerCampo(dados, 'telefones'))
-  const mapa = linkSeguro(lerCampo(dados, 'link origem'))
+  const mapa = lerLinkExterno(lerCampo(dados, 'link origem'))
 
   return (
     <div
@@ -200,12 +209,12 @@ export default function PlacaDetalhe({
             )}
             {mapa && (
               <a
-                href={mapa}
+                href={mapa.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="botao-secundario text-sm"
               >
-                Ver no mapa
+                {mapa.conhecido ? 'Ver no mapa' : `Abrir link (${mapa.site})`}
               </a>
             )}
           </div>

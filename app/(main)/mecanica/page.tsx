@@ -71,35 +71,24 @@ export default function MecanicaPage() {
   // Troca a etapa para qualquer outra (avançar, pular ou voltar)
   async function mudarStatus(novo: string) {
     if (!placaSelecionada || travado.current) return
-    const anterior = placaSelecionada.status
-    if (novo === anterior) return
+    if (novo === placaSelecionada.status) return
 
     travado.current = true
     setAtualizando(true)
     setConfirmarFinalizar(false)
 
-    const { data: { user } } = await supabase.auth.getUser()
-
-    const { error: erroUpdate } = await supabase
+    // O histórico é gravado pelo próprio banco, junto com a mudança (ver 04-seguranca.sql).
+    // O ".select" serve para notar quando o RLS bloqueia: sem ele, parece que deu certo.
+    const { data: alteradas, error: erroUpdate } = await supabase
       .from('placas')
       .update({ status: novo })
       .eq('id', placaSelecionada.id)
+      .select('id')
 
-    if (erroUpdate) {
+    if (erroUpdate || !alteradas?.length) {
       mostrarToast('Não foi possível atualizar o status. Tente novamente.', 'erro')
     } else {
-      const { error: erroHistorico } = await supabase.from('status_historico').insert({
-        placa_id: placaSelecionada.id,
-        status_anterior: anterior,
-        status_novo: novo,
-        atualizado_por: user?.id,
-      })
-
-      if (erroHistorico) {
-        mostrarToast('Status atualizado, mas o histórico não foi registrado.', 'erro')
-      } else {
-        mostrarToast(`Status atualizado para "${novo}"`)
-      }
+      mostrarToast(`Status atualizado para "${novo}"`)
 
       setPlacaSelecionada({ ...placaSelecionada, status: novo })
       setAtualizarLista((n) => n + 1)
