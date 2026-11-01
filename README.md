@@ -57,6 +57,8 @@ lib/
   duasEtapas.ts            verifica se a sessão ainda precisa do código
   fotos.ts                 limites e caminho das fotos de peça
   links.ts                 confere o link que vem na mensagem do 0800
+  moeda.ts                 valores em reais
+  papeis.ts                papéis e como aparecem na tela
   ocr.ts                   worker único do Tesseract
   status.ts                etapas e cores
   reboque.ts               utilidades de data

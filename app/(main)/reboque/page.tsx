@@ -31,10 +31,10 @@ function Contador({ titulo, quantidade, limite }: { titulo: string; quantidade: 
   const noLimite = limite !== null && quantidade === limite
   return (
     <div className="cartao flex-1 !py-4">
-      <p className="text-xs uppercase tracking-wide text-[var(--cor-texto-suave)] mb-1">{titulo}</p>
+      <p className="text-sm text-[var(--cor-texto-suave)] mb-1">{titulo}</p>
       <p
         className={`fonte-titulo text-3xl font-bold ${
-          passou ? 'text-red-400' : noLimite ? 'text-amber-400' : 'text-[var(--cor-primaria-clara)]'
+          passou ? 'text-red-300' : noLimite ? 'text-amber-300' : 'text-[var(--cor-texto)]'
         }`}
       >
         {quantidade}
@@ -42,8 +42,8 @@ function Contador({ titulo, quantidade, limite }: { titulo: string; quantidade: 
           <span className="text-base font-normal text-[var(--cor-texto-suave)]"> de {limite}</span>
         )}
       </p>
-      {passou && <p className="text-xs text-red-400 mt-1">Passou do limite do plano</p>}
-      {noLimite && <p className="text-xs text-amber-400 mt-1">Chegou no limite do plano</p>}
+      {passou && <p className="text-sm text-red-300 mt-1">Passou do limite do plano</p>}
+      {noLimite && <p className="text-sm text-amber-300 mt-1">Chegou no limite do plano</p>}
     </div>
   )
 }
@@ -164,8 +164,8 @@ export default function ReboquePage() {
   const consultorResponsavel = consultores.find((c) => c.id === placaSelecionada?.consultor_id)
 
   return (
-    <div className="pagina p-8 max-w-2xl">
-      <h1 className="fonte-titulo text-xl font-bold mb-4">Reboque</h1>
+    <div className="conteudo">
+      <h1 className="titulo-pagina">Reboque</h1>
 
       <SeletorPlaca
         selecionada={placaSelecionada}
@@ -186,32 +186,37 @@ export default function ReboquePage() {
             <Contador titulo={`Neste ano (${anoAtual})`} quantidade={noAnoAtual} limite={LIMITE_ANUAL} />
           </div>
 
-          <form onSubmit={registrar} className="cartao mb-6 space-y-3">
-            <p className="text-sm font-medium">Registrar um reboque</p>
-            <input
-              type="date"
-              value={dataCampo}
-              onChange={(e) => setDataCampo(e.target.value)}
-              className="campo-input"
-              aria-label="Data do reboque"
-            />
-            <input
-              type="text"
-              value={observacao}
-              onChange={(e) => setObservacao(e.target.value)}
-              placeholder="Observação (opcional) — ex: de onde para onde"
-              className="campo-input"
-              maxLength={200}
-            />
+          <form onSubmit={registrar} className="cartao mb-8 space-y-4">
+            <h2 className="titulo-secao !mb-0">Registrar um reboque</h2>
+            <div>
+              <label htmlFor="data-reboque" className="rotulo">Data</label>
+              <input
+                id="data-reboque"
+                type="date"
+                value={dataCampo}
+                onChange={(e) => setDataCampo(e.target.value)}
+                className="campo-input"
+              />
+            </div>
+            <div>
+              <label htmlFor="observacao-reboque" className="rotulo">Observação (opcional)</label>
+              <input
+                id="observacao-reboque"
+                type="text"
+                value={observacao}
+                onChange={(e) => setObservacao(e.target.value)}
+                placeholder="Ex: de onde para onde"
+                className="campo-input"
+                maxLength={200}
+              />
+            </div>
             <button type="submit" disabled={salvando} className="botao-principal w-full">
               {salvando ? 'Registrando...' : 'Registrar reboque'}
             </button>
           </form>
 
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-bold text-[var(--cor-texto-suave)] uppercase tracking-wide">
-              Por mês
-            </h2>
+            <h2 className="titulo-secao !mb-0">Por mês</h2>
             <div className="flex items-center gap-3 text-sm">
               <button
                 type="button"
@@ -245,14 +250,15 @@ export default function ReboquePage() {
                 key={nome}
                 type="button"
                 onClick={() => setMesFiltro(mesFiltro === m ? null : m)}
-                className={`cartao !p-3 text-left ${
-                  mesFiltro === m ? 'border-[var(--cor-primaria)]' : ''
+                aria-pressed={mesFiltro === m}
+                className={`cartao cartao-clicavel !p-3 text-left ${
+                  mesFiltro === m ? '!border-[var(--cor-primaria-clara)]' : ''
                 }`}
               >
-                <span className="block text-xs text-[var(--cor-texto-suave)]">{nome.slice(0, 3)}</span>
+                <span className="block text-sm text-[var(--cor-texto-suave)]">{nome.slice(0, 3)}</span>
                 <span
                   className={`block text-lg font-bold ${
-                    porMes[m] === 0 ? 'text-[var(--cor-texto-suave)]' : 'text-[var(--cor-primaria-clara)]'
+                    porMes[m] === 0 ? 'text-[var(--cor-texto-suave)]' : 'text-[var(--cor-texto)]'
                   }`}
                 >
                   {porMes[m]}
@@ -265,36 +271,34 @@ export default function ReboquePage() {
             {mesFiltro !== null && ` · mostrando só ${NOMES_MESES[mesFiltro]}`}
           </p>
 
-          <h2 className="text-sm font-bold text-[var(--cor-texto-suave)] mb-3 uppercase tracking-wide">
-            Registros
-          </h2>
+          <h2 className="titulo-secao">Registros</h2>
           <div className="space-y-2">
             {carregando && lista.length === 0 && <div className="esqueleto h-12 w-full" />}
             {!carregando && lista.length === 0 && (
               <p className="text-sm text-[var(--cor-texto-suave)]">Nenhum reboque registrado nesse período.</p>
             )}
             {lista.map((r) => (
-              <div key={r.id} className="cartao flex items-center justify-between gap-3 !py-3 text-sm">
+              <div key={r.id} className="cartao flex flex-wrap items-center justify-between gap-3 !py-3">
                 <span className="min-w-0">
-                  <span className="block font-medium">{r.quando.toLocaleDateString('pt-BR')}</span>
+                  <span className="block font-semibold">{r.quando.toLocaleDateString('pt-BR')}</span>
                   {r.observacao && (
-                    <span className="block text-xs text-[var(--cor-texto-suave)] truncate">{r.observacao}</span>
+                    <span className="block text-sm text-[var(--cor-texto-suave)] break-words">{r.observacao}</span>
                   )}
                 </span>
                 {confirmandoId === r.id ? (
                   <span className="flex gap-2 shrink-0">
-                    <button onClick={() => apagar(r.id)} className="botao-principal text-xs !px-3 !py-1">
-                      Apagar
+                    <button onClick={() => apagar(r.id)} className="botao-principal !px-4">
+                      Sim, apagar
                     </button>
-                    <button onClick={() => setConfirmandoId(null)} className="botao-secundario text-xs !px-3 !py-1">
+                    <button onClick={() => setConfirmandoId(null)} className="botao-secundario !px-4">
                       Cancelar
                     </button>
                   </span>
                 ) : (
                   <button
                     onClick={() => setConfirmandoId(r.id)}
-                    className="text-xs text-[var(--cor-texto-suave)] hover:text-red-400 shrink-0"
-                    aria-label="Apagar registro"
+                    className="botao-secundario !px-4 shrink-0"
+                    aria-label={`Apagar registro de ${r.quando.toLocaleDateString('pt-BR')}`}
                   >
                     Apagar
                   </button>

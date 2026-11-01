@@ -92,11 +92,11 @@ export default function DuasEtapas() {
 
   return (
     <div className="cartao mb-8 space-y-3">
-      <h2 className="fonte-titulo text-lg font-bold">Verificação em duas etapas</h2>
+      <h2 className="titulo-secao !mb-0">Verificação em duas etapas</h2>
 
       {fatorAtivo && !confirmandoDesativar && (
         <>
-          <p className="text-sm text-green-400">✓ Ativada: o login pede a senha e o código do aplicativo.</p>
+          <p className="text-sm text-green-300 font-semibold">✓ Ativada: o login pede a senha e o código do aplicativo.</p>
           <button onClick={() => setConfirmandoDesativar(true)} className="botao-secundario text-sm">
             Desativar
           </button>

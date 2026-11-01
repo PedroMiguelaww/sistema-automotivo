@@ -1,12 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
 export default function PerfilAvatar() {
   const [inicial, setInicial] = useState('?')
+  const pathname = usePathname()
 
   useEffect(() => {
     async function carregar() {
@@ -27,22 +28,16 @@ export default function PerfilAvatar() {
     carregar()
   }, [])
 
-    return (
-    <div className="fixed top-4 left-4 z-10 flex items-center gap-2">
-      <Image
-        src="/logo-proseg.png"
-        alt="Proseg"
-        width={84}
-        height={24}
-        priority
-        className="h-6 w-auto"
-      />
-      <Link
-        href="/perfil"
-        className="w-8 h-8 rounded-full bg-[var(--cor-primaria)] text-white text-sm font-bold flex items-center justify-center opacity-20 hover:opacity-100 transition-opacity duration-200"
-      >
+  return (
+    <Link
+      href="/perfil"
+      aria-current={pathname === '/perfil' ? 'page' : undefined}
+      className={`aba shrink-0 !pl-2 ${pathname === '/perfil' ? 'aba-ativa' : ''}`}
+    >
+      <span className="w-8 h-8 rounded-full bg-[var(--cor-primaria)] border border-white/30 text-white text-sm font-bold flex items-center justify-center">
         {inicial}
-      </Link>
-    </div>
+      </span>
+      Perfil
+    </Link>
   )
 }

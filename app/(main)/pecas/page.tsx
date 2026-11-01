@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { lerTextoDaImagem } from '@/lib/ocr'
 import { BUCKET_FOTOS, caminhoDaFoto, problemaNaFoto } from '@/lib/fotos'
+import { formatarReais } from '@/lib/moeda'
+import { IconeCamera } from '@/components/Icones'
 import { useToast } from '@/components/Toast'
 import SeletorPlaca from '@/components/SeletorPlaca'
 import type { PlacaLinha } from '@/components/ListaPlacas'
@@ -180,8 +182,8 @@ const valorNumerico = t.includes(',') || milharBR
   const consultorResponsavel = consultores.find((c) => c.id === placaSelecionada?.consultor_id)
 
   return (
-    <div className="pagina p-8 max-w-2xl">
-      <h1 className="fonte-titulo text-xl font-bold mb-4">Peças</h1>
+    <div className="conteudo">
+      <h1 className="titulo-pagina">Peças</h1>
 
       <SeletorPlaca
         selecionada={placaSelecionada}
@@ -197,47 +199,56 @@ const valorNumerico = t.includes(',') || milharBR
 
       {placaSelecionada && (
         <>
-          <form onSubmit={adicionarPeca} className="cartao mb-6 space-y-3">
-            <input
-              type="text"
-              placeholder="Nome da peça"
-              value={nomePeca}
-              onChange={(e) => setNomePeca(e.target.value)}
-              className="campo-input"
-              maxLength={300}
-            />
-            <input
-              type="text"
-              placeholder="Valor (ex: 150,00)"
-              value={valorPeca}
-              onChange={(e) => setValorPeca(e.target.value)}
-              className="campo-input"
-            />
+          <form onSubmit={adicionarPeca} className="cartao mb-6 space-y-4">
+            <div>
+              <label htmlFor="nome-peca" className="rotulo">Nome da peça</label>
+              <input
+                id="nome-peca"
+                type="text"
+                value={nomePeca}
+                onChange={(e) => setNomePeca(e.target.value)}
+                className="campo-input"
+                maxLength={300}
+              />
+            </div>
+            <div>
+              <label htmlFor="valor-peca" className="rotulo">Valor</label>
+              <input
+                id="valor-peca"
+                type="text"
+                inputMode="decimal"
+                placeholder="Ex: 150,00"
+                value={valorPeca}
+                onChange={(e) => setValorPeca(e.target.value)}
+                className="campo-input"
+              />
+            </div>
 
             <div
               onPaste={handleColar}
-              className="border border-dashed border-[var(--cor-borda)] p-3 rounded-[var(--raio)] text-sm text-[var(--cor-texto-suave)]"
+              className="campo-arquivo !font-normal !cursor-text text-[var(--cor-texto-suave)]"
               tabIndex={0}
             >
-              {imagemColada ? 'Print colado ✓' : 'Clique aqui e cole um print (Ctrl+V) — opcional'}
+              {imagemColada ? '✓ Imagem adicionada' : 'Opcional: clique aqui e cole um print (Ctrl+V)'}
             </div>
 
-            <label className="block text-center border border-[var(--cor-borda)] rounded-[var(--raio)] p-2 text-sm text-[var(--cor-texto-suave)] cursor-pointer hover:border-[var(--cor-primaria)] transition-colors">
-              📷 Tirar foto da peça
+            <label className="campo-arquivo">
+              <IconeCamera />
+              Tirar foto da peça
               <input
                 type="file"
                 accept="image/*"
                 capture="environment"
                 onChange={handleFoto}
-                className="hidden"
+                className="sr-only"
               />
             </label>
 
             {lendoImagem && (
-              <p className="text-xs text-[var(--cor-primaria)]">Lendo imagem, aguarde...</p>
+              <p className="text-sm font-semibold text-[var(--cor-primaria-clara)]">Lendo imagem, aguarde...</p>
             )}
 
-            <button type="submit" disabled={salvando} className="botao-principal">
+            <button type="submit" disabled={salvando} className="botao-principal w-full">
               {salvando ? 'Adicionando...' : 'Adicionar peça'}
             </button>
           </form>
@@ -246,17 +257,17 @@ const valorNumerico = t.includes(',') || milharBR
             {pecas.map((p) => (
               <div
                 key={p.id}
-                className={`cartao flex justify-between text-sm ${p.id === ultimaPecaId ? 'item-novo' : ''}`}
+                className={`cartao flex justify-between gap-3 !py-3.5 ${p.id === ultimaPecaId ? 'item-novo' : ''}`}
               >
-                <span>{p.nome}</span>
-                <span>R$ {Number(p.valor).toFixed(2)}</span>
+                <span className="min-w-0 break-words">{p.nome}</span>
+                <span className="shrink-0 font-semibold">{formatarReais(Number(p.valor))}</span>
               </div>
             ))}
           </div>
 
-          <div className="cartao font-bold flex justify-between text-[var(--cor-primaria-clara)]">
+          <div className="cartao !bg-[var(--cor-fundo-destaque)] text-lg font-bold flex justify-between gap-3">
             <span>Total</span>
-            <span>R$ {total.toFixed(2)}</span>
+            <span>{formatarReais(total)}</span>
           </div>
         </>
       )}

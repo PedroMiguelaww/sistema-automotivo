@@ -18,18 +18,18 @@ export default function SeletorPlaca({
 }) {
   if (selecionada) {
     return (
-      <div className="cartao flex items-center justify-between gap-3 mb-2 !py-3">
-        <span className="flex items-center gap-3 min-w-0">
-          <strong className="text-sm">{selecionada.placa}</strong>
+      <div className="cartao flex items-center justify-between gap-3 mb-3 !py-3">
+        <span className="flex flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
+          <strong className="text-lg">{selecionada.placa}</strong>
           <span
-            className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
+            className={`px-3 py-1 rounded-full text-sm font-semibold ${
               corDoStatus(selecionada.status)
             }`}
           >
             {selecionada.status}
           </span>
         </span>
-        <button type="button" onClick={() => onSelecionar(null)} className="botao-secundario text-sm">
+        <button type="button" onClick={() => onSelecionar(null)} className="botao-secundario shrink-0 !px-4">
           Trocar
         </button>
       </div>
@@ -38,14 +38,11 @@ export default function SeletorPlaca({
 
   return (
     <div className="mb-4">
-      <label className="block mb-2 text-sm font-medium text-[var(--cor-texto-suave)]">
-        Escolha a placa
-      </label>
+      <p className="rotulo !mb-2">Escolha a placa</p>
       <ListaPlacas
         consultores={consultores}
         onAbrir={onSelecionar}
         refreshKey={refreshKey}
-        classeLista="max-h-[28rem] overflow-y-auto sem-scrollbar"
       />
     </div>
   )

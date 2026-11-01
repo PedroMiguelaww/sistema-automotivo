@@ -19,7 +19,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   const mostrarToast = useCallback((mensagem: string, tipo: 'sucesso' | 'erro' = 'sucesso') => {
     setToast({ mensagem, tipo })
-    setTimeout(() => setToast(null), 2500)
+    // tempo suficiente para ler com calma
+    setTimeout(() => setToast(null), 5000)
   }, [])
 
   return (
@@ -27,10 +28,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       {children}
       {toast && (
         <div
-          className={`fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-[var(--raio)] text-sm font-medium shadow-lg toast-entrada ${
-            toast.tipo === 'sucesso'
-              ? 'bg-[var(--cor-primaria)] text-white'
-              : 'bg-red-500 text-white'
+          role="status"
+          className={`fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2.5rem)] max-w-md px-4 py-3 rounded-[var(--raio)] text-sm font-semibold text-center shadow-lg text-white ${
+            toast.tipo === 'sucesso' ? 'bg-green-700' : 'bg-red-700'
           }`}
         >
           {toast.tipo === 'sucesso' ? '✓ ' : '⚠ '}

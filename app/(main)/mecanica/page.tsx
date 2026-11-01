@@ -118,8 +118,8 @@ export default function MecanicaPage() {
   const consultorResponsavel = consultores.find((c) => c.id === placaSelecionada?.consultor_id)
 
   return (
-    <div className="pagina p-8 max-w-2xl">
-      <h1 className="fonte-titulo text-xl font-bold mb-4">Mecânica</h1>
+    <div className="conteudo">
+      <h1 className="titulo-pagina">Mecânica</h1>
 
       <SeletorPlaca
         selecionada={placaSelecionada}
@@ -138,15 +138,19 @@ export default function MecanicaPage() {
         <>
           <div className="cartao mb-6 space-y-4">
             <div>
-              <p className="text-xs text-[var(--cor-texto-suave)] mb-2 uppercase tracking-wide">Status atual</p>
-              <span className={`inline-block px-3 py-1.5 rounded-full font-semibold text-sm ${corDoStatus(statusAtual)}`}>
+              <p className="text-sm text-[var(--cor-texto-suave)] mb-2">
+                Etapa atual
+                {STATUS_LISTA.includes(statusAtual) &&
+                  ` (${STATUS_LISTA.indexOf(statusAtual) + 1} de ${STATUS_LISTA.length})`}
+              </p>
+              <span className={`inline-block px-4 py-1.5 rounded-full font-bold ${corDoStatus(statusAtual)}`}>
                 {statusAtual}
               </span>
             </div>
 
             {confirmarFinalizar ? (
               <div className="border border-[var(--cor-borda)] rounded-[var(--raio)] p-3 space-y-3">
-                <p className="text-sm">Finalizar esta placa? Você ainda poderá desfazer logo depois.</p>
+                <p>Finalizar esta placa? Você ainda poderá desfazer logo depois.</p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => mudarStatus(STATUS_FINAL)}
@@ -174,7 +178,7 @@ export default function MecanicaPage() {
                     {atualizando ? 'Atualizando...' : `Avançar para "${proximoStatus}"`}
                   </button>
                 ) : (
-                  <p className="text-green-400 text-sm font-medium">✓ Atendimento finalizado</p>
+                  <p className="text-green-300 font-semibold">✓ Atendimento finalizado</p>
                 )}
 
                 <div className="flex flex-col sm:flex-row gap-2">
@@ -207,16 +211,16 @@ export default function MecanicaPage() {
             )}
           </div>
 
-          <h2 className="text-sm font-bold text-[var(--cor-texto-suave)] mb-3 uppercase tracking-wide">Histórico</h2>
+          <h2 className="titulo-secao">Histórico</h2>
           <div className="relative pl-4 space-y-5 border-l-2 border-[var(--cor-borda)]">
             {historico.length === 0 && (
-              <p className="text-[var(--cor-texto-suave)] text-sm">Nenhuma mudança registrada ainda.</p>
+              <p className="text-[var(--cor-texto-suave)]">Nenhuma mudança registrada ainda.</p>
             )}
             {historico.map((h) => (
               <div key={h.id} className="relative">
-                <div className="absolute -left-[21px] top-1 w-3 h-3 rounded-full bg-[var(--cor-primaria)] border-2 border-[var(--cor-fundo)]" />
-                <p className="text-sm font-medium">{textoDaMudanca(h)}</p>
-                <p className="text-xs text-[var(--cor-texto-suave)]">
+                <div className="absolute -left-[23px] top-1.5 w-3 h-3 rounded-full bg-[var(--cor-primaria)] border-2 border-[var(--cor-fundo)]" />
+                <p className="font-semibold">{textoDaMudanca(h)}</p>
+                <p className="text-sm text-[var(--cor-texto-suave)]">
                   {new Date(h.created_at).toLocaleString('pt-BR')}
                 </p>
               </div>

@@ -8,6 +8,7 @@ import ListaPlacas from '@/components/ListaPlacas'
 import { lerMensagem0800 } from '@/lib/mensagem0800'
 import { lerCampo } from '@/lib/campos0800'
 import { identificarConsultor } from '@/lib/consultor'
+import { IconeCamera } from '@/components/Icones'
 
 type Consultor = {
   id: string
@@ -167,35 +168,37 @@ export default function PlacasPage() {
   }
 
   return (
-    <div className="pagina p-8 max-w-2xl">
-      <h1 className="fonte-titulo text-xl font-bold mb-4">Cadastro de Placas</h1>
+    <div className="conteudo">
+      <h1 className="titulo-pagina">Cadastro de Placas</h1>
 
-      <form onSubmit={salvarPlaca} className="cartao mb-8 space-y-3">
-        <label className="block mb-1 text-sm font-medium text-[var(--cor-texto-suave)]">
-          Colar mensagem do 0800
-        </label>
-        <textarea
-          value={mensagem}
-          onChange={(e) => processarMensagem(e.target.value)}
-          className="campo-input h-40 text-sm"
-          placeholder="Cole aqui a mensagem completa recebida..."
-        />
+      <form onSubmit={salvarPlaca} className="cartao mb-10 space-y-5">
+        <div>
+          <label htmlFor="mensagem-0800" className="rotulo">Colar mensagem do 0800</label>
+          <textarea
+            id="mensagem-0800"
+            value={mensagem}
+            onChange={(e) => processarMensagem(e.target.value)}
+            className="campo-input h-40"
+            placeholder="Cole aqui a mensagem completa recebida..."
+          />
+        </div>
 
-        <label className="block text-center border border-[var(--cor-borda)] rounded-[var(--raio)] p-2 text-sm text-[var(--cor-texto-suave)] cursor-pointer hover:border-[var(--cor-primaria)] transition-colors">
-          📷 Ou tirar foto da placa
+        <label className="campo-arquivo">
+          <IconeCamera />
+          Ou tirar foto da placa
           <input
             type="file"
             accept="image/*"
             capture="environment"
             onChange={handleFotoPlaca}
-            className="hidden"
+            className="sr-only"
           />
         </label>
 
-        <label className="block mb-1 text-sm font-medium text-[var(--cor-texto-suave)]">
-          Ou digitar a placa manualmente
-        </label>
+        <div>
+          <label htmlFor="placa-manual" className="rotulo">Ou digitar a placa manualmente</label>
         <input
+          id="placa-manual"
           type="text"
           placeholder="Ex: TST1A23"
           value={placaDetectada}
@@ -216,19 +219,20 @@ export default function PlacasPage() {
         />
 
         {lendoImagem && (
-          <p className="text-xs text-[var(--cor-primaria)]">Lendo foto, aguarde...</p>
+          <p className="text-sm font-semibold text-[var(--cor-primaria-clara)] mt-2">Lendo foto, aguarde...</p>
         )}
 
         {placaDetectada && placaValida(placaDetectada) && (
-          <p className="text-sm text-green-500">
+          <p className="text-sm text-green-300 mt-2">
             Formato válido: <strong>{placaDetectada}</strong>
           </p>
         )}
+        </div>
 
-        <label className="block mb-1 text-sm font-medium text-[var(--cor-texto-suave)]">
-          Consultor responsável
-        </label>
+        <div>
+        <label htmlFor="consultor" className="rotulo">Consultor responsável</label>
         <select
+          id="consultor"
           value={consultorSelecionado}
           onChange={(e) => setConsultorSelecionado(e.target.value)}
           className="campo-input"
@@ -240,15 +244,16 @@ export default function PlacasPage() {
             </option>
           ))}
         </select>
+        </div>
 
-        {aviso && <p className="text-[var(--cor-primaria-clara)] text-sm">{aviso}</p>}
+        {aviso && <p role="status" className="text-amber-300 text-sm font-semibold">{aviso}</p>}
 
-        <button type="submit" disabled={salvando} className="botao-principal">
+        <button type="submit" disabled={salvando} className="botao-principal w-full">
           {salvando ? 'Salvando...' : 'Salvar placa'}
         </button>
       </form>
 
-      <h2 className="fonte-titulo text-lg font-bold mb-3">Placas em andamento</h2>
+      <h2 className="titulo-secao">Placas em andamento</h2>
       <ListaPlacas consultores={consultores} refreshKey={atualizarLista} />
     </div>
   )

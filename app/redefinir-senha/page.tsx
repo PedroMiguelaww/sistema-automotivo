@@ -68,7 +68,7 @@ export default function RedefinirSenhaPage() {
   }
 
   return (
-    <div className="pagina flex min-h-screen flex-col items-center justify-center px-6">
+    <div className="flex min-h-dvh flex-col items-center justify-center px-5 py-10">
       <h1 className="fonte-titulo text-xl font-bold mb-4">Redefinir senha</h1>
 
       {etapa === 'carregando' && (
@@ -80,7 +80,7 @@ export default function RedefinirSenhaPage() {
           <p className="text-sm">
             Este link é inválido ou expirou. Peça um novo na tela de login e abra-o neste mesmo navegador.
           </p>
-          <Link href="/" className="botao-secundario block text-center">
+          <Link href="/" className="botao-secundario w-full">
             Ir para o login
           </Link>
         </div>
@@ -91,28 +91,34 @@ export default function RedefinirSenhaPage() {
       )}
 
       {etapa === 'senha' && (
-        <form onSubmit={salvar} className="cartao w-full max-w-sm space-y-3">
-          <input
-            type="password"
-            placeholder="Nova senha (mínimo 8 caracteres)"
-            autoComplete="new-password"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            className="campo-input"
-            minLength={8}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Repita a nova senha"
-            autoComplete="new-password"
-            value={confirmacao}
-            onChange={(e) => setConfirmacao(e.target.value)}
-            className="campo-input"
-            minLength={8}
-            required
-          />
-          {erro && <p className="text-red-400 text-sm">{erro}</p>}
+        <form onSubmit={salvar} className="cartao w-full max-w-sm space-y-4">
+          <div>
+            <label htmlFor="nova-senha" className="rotulo">Nova senha (mínimo 8 caracteres)</label>
+            <input
+              id="nova-senha"
+              type="password"
+              autoComplete="new-password"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              className="campo-input"
+              minLength={8}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="repetir-senha" className="rotulo">Repita a nova senha</label>
+            <input
+              id="repetir-senha"
+              type="password"
+              autoComplete="new-password"
+              value={confirmacao}
+              onChange={(e) => setConfirmacao(e.target.value)}
+              className="campo-input"
+              minLength={8}
+              required
+            />
+          </div>
+          {erro && <p className="text-red-300 text-sm font-semibold">{erro}</p>}
           <button type="submit" disabled={salvando} className="botao-principal w-full">
             {salvando ? 'Salvando...' : 'Salvar nova senha'}
           </button>
@@ -122,7 +128,7 @@ export default function RedefinirSenhaPage() {
       {etapa === 'pronto' && (
         <div className="cartao w-full max-w-sm space-y-3">
           <p className="text-sm">Senha alterada. Entre novamente com a nova senha.</p>
-          <Link href="/" className="botao-principal block text-center">
+          <Link href="/" className="botao-principal w-full">
             Ir para o login
           </Link>
         </div>

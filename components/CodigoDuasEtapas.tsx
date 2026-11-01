@@ -55,7 +55,7 @@ export default function CodigoDuasEtapas({
         aria-label="Código de verificação"
         required
       />
-      {erro && <p className="text-red-400 text-sm">{erro}</p>}
+      {erro && <p className="text-red-300 text-sm font-semibold">{erro}</p>}
       <button type="submit" disabled={enviando} className="botao-principal w-full">
         {enviando ? 'Confirmando...' : 'Confirmar'}
       </button>

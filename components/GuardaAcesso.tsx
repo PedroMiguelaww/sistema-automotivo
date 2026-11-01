@@ -36,7 +36,7 @@ export default function GuardaAcesso({ children }: { children: React.ReactNode }
 
   if (situacao === 'pendente') {
     return (
-      <div className="pagina flex h-dvh flex-col items-center justify-center px-6 text-center">
+      <div className="flex h-dvh flex-col items-center justify-center px-6 text-center">
         <h1 className="fonte-titulo text-xl font-bold mb-2">Acesso aguardando liberação</h1>
         <p className="text-sm text-[var(--cor-texto-suave)] mb-6 max-w-sm">
           Sua conta existe, mas ainda não tem acesso ao sistema. Fale com o administrador.

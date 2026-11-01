@@ -7,6 +7,7 @@ import PlacaDetalhe from '@/components/PlacaDetalhe'
 import ListaPlacas, { type ConsultorNome, type PlacaLinha } from '@/components/ListaPlacas'
 import GerenciarUsuarios from '@/components/GerenciarUsuarios'
 import DuasEtapas from '@/components/DuasEtapas'
+import { nomeDoPapel } from '@/lib/papeis'
 
 type Perfil = {
   id: string
@@ -65,7 +66,7 @@ export default function PerfilPage() {
 
   if (carregando) {
     return (
-      <div className="pagina p-8 max-w-2xl">
+      <div className="conteudo">
         <div className="esqueleto h-8 w-48 mb-2" />
         <div className="esqueleto h-4 w-24 mb-6" />
         <div className="esqueleto h-6 w-32 mb-2" />
@@ -76,7 +77,7 @@ export default function PerfilPage() {
 
   if (erroCarregar || !perfil) {
     return (
-      <div className="pagina p-8 max-w-2xl">
+      <div className="conteudo">
         <p className="text-[var(--cor-texto-suave)] mb-4">
           Não foi possível carregar seu perfil. Verifique sua conexão e tente novamente.
         </p>
@@ -91,11 +92,11 @@ export default function PerfilPage() {
   const veTodas = ehSuperAdmin || perfil.role === 'operador'
 
   return (
-    <div className="pagina p-8 max-w-2xl">
-      <h1 className="fonte-titulo text-xl font-bold mb-1">{perfil.nome}</h1>
-      <p className="text-[var(--cor-texto-suave)] mb-6 capitalize">{perfil.role.replace('_', ' ')}</p>
+    <div className="conteudo">
+      <h1 className="titulo-pagina !mb-1">{perfil.nome}</h1>
+      <p className="text-[var(--cor-texto-suave)] mb-8">{nomeDoPapel(perfil.role)}</p>
 
-      <h2 className="fonte-titulo text-lg font-bold mb-3">
+      <h2 className="titulo-secao">
         {veTodas ? 'Todas as placas' : 'Minhas placas'}
       </h2>
 
@@ -119,8 +120,8 @@ export default function PerfilPage() {
 
       <DuasEtapas />
 
-      <button onClick={handleSair} className="botao-secundario">
-        Sair
+      <button onClick={handleSair} className="botao-secundario w-full sm:w-auto">
+        Sair do sistema
       </button>
 
       {placaAberta && (

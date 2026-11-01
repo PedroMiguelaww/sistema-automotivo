@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase'
 import { lerCampo } from '@/lib/campos0800'
 import { corDoStatus } from '@/lib/status'
 import { lerLinkExterno } from '@/lib/links'
+import { formatarReais } from '@/lib/moeda'
 
 export type PlacaResumo = {
   id: string
@@ -121,7 +122,7 @@ export default function PlacaDetalhe({
       onClick={onClose}
     >
       <div
-        className="cartao modal-entrada w-full max-w-md max-h-[85dvh] overflow-y-auto sem-scrollbar"
+        className="cartao w-full max-w-md max-h-[85dvh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -131,7 +132,7 @@ export default function PlacaDetalhe({
           <div>
             <h2 className="fonte-titulo text-xl font-bold">{placa.placa}</h2>
             <span
-              className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
+              className={`inline-block mt-2 px-3 py-1 rounded-full text-sm font-semibold ${
                 corDoStatus(placa.status)
               }`}
             >
@@ -140,33 +141,32 @@ export default function PlacaDetalhe({
           </div>
           <button
             onClick={onClose}
-            aria-label="Fechar"
-            className="text-[var(--cor-texto-suave)] hover:text-white text-xl leading-none px-2"
+            className="botao-secundario !px-4 shrink-0"
           >
-            ✕
+            Fechar
           </button>
         </div>
 
         {temDados ? (
-          <dl className="space-y-3 text-sm">
+          <dl className="space-y-3">
             {campos.map(
               ([rotulo, valor]) =>
                 valor && (
                   <div key={rotulo}>
-                    <dt className="text-xs uppercase tracking-wide text-[var(--cor-texto-suave)]">
+                    <dt className="text-sm text-[var(--cor-texto-suave)]">
                       {rotulo}
                     </dt>
-                    <dd className="font-medium">{valor}</dd>
+                    <dd className="font-semibold">{valor}</dd>
                   </div>
                 )
             )}
 
             {observacao && (
               <div>
-                <dt className="text-xs uppercase tracking-wide text-[var(--cor-texto-suave)]">
+                <dt className="text-sm text-[var(--cor-texto-suave)]">
                   Observação
                 </dt>
-                <dd className="text-[var(--cor-texto-suave)] whitespace-pre-line">
+                <dd className="whitespace-pre-line">
                   {observacao}
                 </dd>
               </div>
@@ -178,14 +178,14 @@ export default function PlacaDetalhe({
           </p>
         )}
 
-        <div className="mt-4 pt-4 border-t border-[var(--cor-borda)] text-sm flex justify-between">
+        <div className="mt-4 pt-4 border-t border-[var(--cor-borda)] flex justify-between gap-3">
           <span className="text-[var(--cor-texto-suave)]">
             Peças ({qtdPecas})
           </span>
-          <strong className="text-[var(--cor-primaria-clara)]">R$ {totalPecas.toFixed(2)}</strong>
+          <strong>{formatarReais(totalPecas)}</strong>
         </div>
 
-        <div className="mt-2 text-sm flex justify-between">
+        <div className="mt-2 flex justify-between gap-3">
           <span className="text-[var(--cor-texto-suave)]">Reboques (este mês / este ano)</span>
           <strong>{erroReboques ? '—' : `${reboquesMes} / ${reboquesAno}`}</strong>
         </div>
@@ -194,14 +194,14 @@ export default function PlacaDetalhe({
           <div className="mt-4 flex flex-wrap gap-2">
             {telefone && (
               <>
-                <a href={`tel:+${telefone}`} className="botao-secundario text-sm">
+                <a href={`tel:+${telefone}`} className="botao-secundario flex-1">
                   Ligar
                 </a>
                 <a
                   href={`https://wa.me/${telefone}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="botao-secundario text-sm"
+                  className="botao-secundario flex-1"
                 >
                   WhatsApp
                 </a>
@@ -212,7 +212,7 @@ export default function PlacaDetalhe({
                 href={mapa.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="botao-secundario text-sm"
+                className="botao-secundario w-full"
               >
                 {mapa.conhecido ? 'Ver no mapa' : `Abrir link (${mapa.site})`}
               </a>

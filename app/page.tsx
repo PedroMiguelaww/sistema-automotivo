@@ -78,9 +78,9 @@ export default function HomePage() {
   }
 
   return (
-    <div className="pagina flex min-h-screen flex-col items-center justify-center px-6 text-center">
-           <Image src="/logo-proseg.png" alt="Proseg" width={240} height={80} className="mb-4" priority />
-      <h1 className="fonte-titulo text-2xl font-bold tracking-tight mb-2">
+    <div className="flex min-h-dvh flex-col items-center justify-center px-5 py-10 text-center">
+      <Image src="/logo-proseg.png" alt="Proseg" width={220} height={64} className="mb-5" priority />
+      <h1 className="fonte-titulo text-2xl font-bold mb-2">
         Sistema Automotivo
       </h1>
       <p className="text-[var(--cor-texto-suave)] mb-8 max-w-sm">
@@ -96,26 +96,34 @@ export default function HomePage() {
       )}
 
       {etapa === 'login' && (
-        <form onSubmit={handleLogin} className="cartao w-full max-w-sm space-y-3 text-left">
-          <input
-            type="email"
-            placeholder="E-mail"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="campo-input"
-            required
-          />
+        <form onSubmit={handleLogin} className="cartao w-full max-w-sm space-y-4 text-left">
+          <div>
+            <label htmlFor="email" className="rotulo">E-mail</label>
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="campo-input"
+              required
+            />
+          </div>
 
-          <input
-            type="password"
-            placeholder="Senha"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            className="campo-input"
-            required
-          />
+          <div>
+            <label htmlFor="senha" className="rotulo">Senha</label>
+            <input
+              id="senha"
+              type="password"
+              autoComplete="current-password"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              className="campo-input"
+              required
+            />
+          </div>
 
-          {erro && <p className="text-red-400 text-sm">{erro}</p>}
+          {erro && <p className="text-red-300 text-sm font-semibold">{erro}</p>}
 
           <button type="submit" disabled={enviando} className="botao-principal w-full">
             {enviando ? 'Entrando...' : 'Entrar'}
@@ -128,7 +136,7 @@ export default function HomePage() {
                 setErro('')
                 setEtapa('esqueci')
               }}
-              className="text-[var(--cor-primaria)] font-medium"
+              className="text-[var(--cor-primaria-clara)] font-semibold min-h-11 px-2 cursor-pointer hover:underline"
             >
               Esqueci minha senha
             </button>
@@ -140,18 +148,22 @@ export default function HomePage() {
       )}
 
       {etapa === 'esqueci' && (
-        <form onSubmit={handleEsqueci} className="cartao w-full max-w-sm space-y-3 text-left">
+        <form onSubmit={handleEsqueci} className="cartao w-full max-w-sm space-y-4 text-left">
           <p className="text-sm text-[var(--cor-texto-suave)]">
             Informe seu e-mail para receber o link de redefinição de senha.
           </p>
-          <input
-            type="email"
-            placeholder="E-mail"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="campo-input"
-            required
-          />
+          <div>
+            <label htmlFor="email-recuperar" className="rotulo">E-mail</label>
+            <input
+              id="email-recuperar"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="campo-input"
+              required
+            />
+          </div>
           <button type="submit" disabled={enviando} className="botao-principal w-full">
             {enviando ? 'Enviando...' : 'Enviar link'}
           </button>

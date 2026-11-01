@@ -75,10 +75,11 @@ export default function ListaPlacas({
         placeholder={
           consultores ? 'Buscar por placa, beneficiário ou consultor...' : 'Buscar por placa ou beneficiário...'
         }
-        className="campo-input mb-2"
+        className="campo-input mb-3"
+        aria-label="Buscar placa"
       />
 
-      <label className="flex items-center gap-2 text-xs text-[var(--cor-texto-suave)] mb-3 cursor-pointer w-fit">
+      <label className="flex items-center gap-2 text-sm text-[var(--cor-texto-suave)] mb-4 cursor-pointer w-fit min-h-8">
         <input
           type="checkbox"
           checked={incluirFinalizadas}
@@ -117,18 +118,18 @@ export default function ListaPlacas({
           const conteudo = (
             <>
               <span className="min-w-0">
-                <span className="block text-sm font-semibold">
+                <span className="block font-bold">
                   {p.placa}
                   {modelo && (
                     <span className="font-normal text-[var(--cor-texto-suave)]"> · {modelo}</span>
                   )}
                 </span>
                 {subtitulo && (
-                  <span className="block text-xs text-[var(--cor-texto-suave)] truncate">{subtitulo}</span>
+                  <span className="block text-sm text-[var(--cor-texto-suave)] truncate">{subtitulo}</span>
                 )}
               </span>
               <span
-                className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold ${
+                className={`shrink-0 px-3 py-1 rounded-full text-sm font-semibold ${
                   corDoStatus(p.status)
                 }`}
               >
@@ -142,12 +143,12 @@ export default function ListaPlacas({
               key={p.id}
               type="button"
               onClick={() => onAbrir(p)}
-              className="cartao w-full text-left flex items-center justify-between gap-3 !py-3"
+              className="cartao cartao-clicavel w-full text-left flex items-center justify-between gap-3 !py-3.5"
             >
               {conteudo}
             </button>
           ) : (
-            <div key={p.id} className="cartao flex items-center justify-between gap-3 !py-3">
+            <div key={p.id} className="cartao flex items-center justify-between gap-3 !py-3.5">
               {conteudo}
             </div>
           )
@@ -158,7 +159,7 @@ export default function ListaPlacas({
             type="button"
             onClick={carregarMais}
             disabled={carregando}
-            className="botao-secundario w-full text-sm"
+            className="botao-secundario w-full"
           >
             {carregando ? 'Carregando...' : 'Carregar mais'}
           </button>

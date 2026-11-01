@@ -6,6 +6,8 @@ import { montarFiltroBusca } from '../lib/busca'
 import { identificarConsultor } from '../lib/consultor'
 import { lerLinkExterno } from '../lib/links'
 import { caminhoDaFoto, problemaNaFoto } from '../lib/fotos'
+import { formatarReais } from '../lib/moeda'
+import { nomeDoPapel } from '../lib/papeis'
 
 // 1) mensagem como vem do 0800, com acento
 const comAcento = lerMensagem0800(`
@@ -99,5 +101,10 @@ assert.equal(problemaNaFoto({ type: 'image/jpeg', size: 1000 }), null)
 assert.ok(problemaNaFoto({ type: 'image/svg+xml', size: 1000 }))
 assert.ok(problemaNaFoto({ type: 'image/png', size: 6 * 1024 * 1024 }))
 assert.match(caminhoDaFoto('placa-1', 'image/png'), /^placa-1\/[0-9a-f-]+\.png$/)
+
+// 10) textos da tela
+assert.equal(formatarReais(1500.5).replace(/\s/g, ' '), 'R$ 1.500,50')
+assert.equal(nomeDoPapel('super_admin'), 'Administrador')
+assert.equal(nomeDoPapel('desconhecido'), 'desconhecido')
 
 console.log('OK — todos os testes do parser passaram')
