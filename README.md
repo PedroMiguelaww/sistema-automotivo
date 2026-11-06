@@ -35,20 +35,23 @@ npm run build        # build de produção
 
 A `anon key` é pública por design. A segurança dos dados vem do **RLS** no banco, não da chave. Nunca use a `service_role` no cliente.
 
-## Hospedagem (Cloudflare Pages)
+## Hospedagem (Cloudflare Workers)
 
 O sistema é um site estático (`output: 'export'`): o build gera a pasta `out`,
 e tudo roda no navegador falando direto com o Supabase. Não há servidor próprio.
+O Worker só serve esses arquivos, conforme o `wrangler.jsonc`.
 
-Configuração do projeto na Cloudflare (Workers & Pages > Create application >
-Pages > Import an existing Git repository):
+No Worker, em Settings > Build:
 
 | Campo | Valor |
 |---|---|
-| Framework preset | `Next.js (Static HTML Export)` |
-| Build command | `npm run build` (não use o `npx next build` do preset: ele pula o OCR e as proteções) |
-| Build output directory | `out` |
-| Environment variables | `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
+| Build command | `npm run build` |
+| Deploy command | `npx wrangler deploy` (não use o comando do OpenNext que a Cloudflare sugere para Next) |
+| Build variables and secrets | `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
+
+As chaves vão em **Build variables and secrets**: as de "Variables and secrets"
+só valem com o site no ar e não chegam ao build. O `name` do `wrangler.jsonc`
+precisa ser igual ao nome do Worker no painel.
 
 A versão do Node vem do arquivo `.node-version`. O `scripts/gerar-cloudflare.mjs`
 cria `out/_headers` (CSP e demais proteções) e `out/_redirects` depois do build.
@@ -56,7 +59,7 @@ cria `out/_headers` (CSP e demais proteções) e `out/_redirects` depois do buil
 Para testar como a Cloudflare serve o site, depois de `npm run build`:
 
 ```bash
-npx wrangler pages dev out
+npx wrangler dev
 ```
 
 ## Estrutura

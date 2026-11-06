@@ -1,0 +1,13 @@
+// Configuração do Worker na Cloudflare: só serve os arquivos prontos da pasta "out"
+// (gerada por "npm run build"). Não há código rodando no servidor.
+// O "name" precisa ser igual ao nome do Worker no painel da Cloudflare.
+{
+  "name": "sistema-automotivo",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./out",
+    // /placas serve placas.html, como nas outras hospedagens
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}

@@ -46,3 +46,6 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# cache local do Wrangler (npx wrangler dev)
+/.wrangler/
