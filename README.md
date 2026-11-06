@@ -35,6 +35,30 @@ npm run build        # build de produção
 
 A `anon key` é pública por design. A segurança dos dados vem do **RLS** no banco, não da chave. Nunca use a `service_role` no cliente.
 
+## Hospedagem (Cloudflare Pages)
+
+O sistema é um site estático (`output: 'export'`): o build gera a pasta `out`,
+e tudo roda no navegador falando direto com o Supabase. Não há servidor próprio.
+
+Configuração do projeto na Cloudflare (Workers & Pages > Create application >
+Pages > Import an existing Git repository):
+
+| Campo | Valor |
+|---|---|
+| Framework preset | `Next.js (Static HTML Export)` |
+| Build command | `npm run build` (não use o `npx next build` do preset: ele pula o OCR e as proteções) |
+| Build output directory | `out` |
+| Environment variables | `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
+
+A versão do Node vem do arquivo `.node-version`. O `scripts/gerar-cloudflare.mjs`
+cria `out/_headers` (CSP e demais proteções) e `out/_redirects` depois do build.
+
+Para testar como a Cloudflare serve o site, depois de `npm run build`:
+
+```bash
+npx wrangler pages dev out
+```
+
 ## Estrutura
 
 ```
@@ -64,9 +88,9 @@ lib/
   reboque.ts               utilidades de data
   texto.ts                 normalização de texto
 scripts/copiar-ocr.mjs     copia os arquivos do OCR para public/ocr
+scripts/gerar-cloudflare.mjs  gera _headers e _redirects para a Cloudflare
 supabase/                  SQL de auditoria, normalização e permissões
 tests/                     parser do 0800 e regras de acesso (npm test)
-proxy.ts                   porteiro das rotas internas (Next 16)
 ```
 
 ## Modelo de dados (Supabase)
@@ -85,7 +109,7 @@ proxy.ts                   porteiro das rotas internas (Next 16)
 ## Segurança
 
 - RLS deve estar **ativo em todas as tabelas** com policies por operação.
-- `proxy.ts` e `GuardaAcesso` só evitam abrir tela vazia. A proteção real dos dados é o RLS.
+- `GuardaAcesso` só evita abrir tela vazia. A proteção real dos dados é o RLS.
 - Não existe cadastro público: contas são criadas pelo administrador e nascem sem acesso.
 
 ### Papéis

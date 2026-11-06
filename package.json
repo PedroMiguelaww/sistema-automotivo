@@ -7,7 +7,7 @@
     "dev": "next dev",
     "prebuild": "node scripts/copiar-ocr.mjs",
     "build": "next build",
-    "start": "next start",
+    "postbuild": "node scripts/gerar-cloudflare.mjs",
     "lint": "eslint",
     "test": "tsx tests/parser.test.ts && tsx tests/rls.test.mts"
   },
