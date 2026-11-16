@@ -68,6 +68,8 @@ function ListaUsuarios({
 }) {
   const [usuarios, setUsuarios] = useState<Usuario[] | null>(null)
   const [salvandoId, setSalvandoId] = useState<string | null>(null)
+  const [editandoId, setEditandoId] = useState<string | null>(null)
+  const [nomeEditado, setNomeEditado] = useState('')
 
   useEffect(() => {
     createClient()
@@ -100,19 +102,83 @@ function ListaUsuarios({
     mostrarToast(`Acesso de ${usuario.nome} atualizado`)
   }
 
+  // Conta criada pelo painel do Supabase recebe o começo do e-mail como nome.
+  // O nome precisa ser igual ao da mensagem do 0800 para o consultor ser
+  // escolhido sozinho no cadastro de placas.
+  async function salvarNome(e: React.FormEvent, usuario: Usuario) {
+    e.preventDefault()
+    const nome = nomeEditado.replace(/\s+/g, ' ').trim()
+    if (!nome) {
+      mostrarToast('Informe o nome.', 'erro')
+      return
+    }
+
+    setSalvandoId(usuario.id)
+    const { data, error } = await createClient()
+      .from('profiles')
+      .update({ nome })
+      .eq('id', usuario.id)
+      .select('id')
+    setSalvandoId(null)
+
+    if (error || !data?.length) {
+      mostrarToast('Não foi possível alterar o nome.', 'erro')
+      return
+    }
+
+    setUsuarios((usuarios ?? []).map((u) => (u.id === usuario.id ? { ...u, nome } : u)))
+    setEditandoId(null)
+    mostrarToast('Nome atualizado')
+  }
+
   if (!usuarios) {
     return <div className="esqueleto h-16 w-full mt-4" />
   }
 
   return (
-    <div className="mt-4 pt-4 border-t border-[var(--cor-borda)] space-y-3">
-      <p className="text-sm text-[var(--cor-texto-suave)]">Só libere as contas de quem você reconhece.</p>
+    <div className="mt-4 pt-4 border-t border-[var(--cor-borda)] space-y-4">
+      <p className="text-sm text-[var(--cor-texto-suave)]">
+        Só libere as contas de quem você reconhece. O nome deve ser igual ao que vem na mensagem do 0800.
+      </p>
       {usuarios.map((u) => (
-        <div key={u.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <span className="font-semibold min-w-0 truncate">
-            {u.nome}
-            {u.id === meuId && <span className="font-normal text-[var(--cor-texto-suave)]"> (você)</span>}
-          </span>
+        <div key={u.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-4 border-t border-[var(--cor-borda)] first-of-type:border-t-0 first-of-type:pt-0">
+          {editandoId === u.id ? (
+            <form onSubmit={(e) => salvarNome(e, u)} className="flex flex-1 flex-wrap gap-2 min-w-0">
+              <input
+                type="text"
+                value={nomeEditado}
+                onChange={(e) => setNomeEditado(e.target.value)}
+                className="campo-input flex-1 min-w-48"
+                maxLength={80}
+                aria-label={`Nome de ${u.nome}`}
+                autoFocus
+              />
+              <button type="submit" disabled={salvandoId === u.id} className="botao-principal !px-4">
+                Salvar
+              </button>
+              <button type="button" onClick={() => setEditandoId(null)} className="botao-secundario !px-4">
+                Cancelar
+              </button>
+            </form>
+          ) : (
+            <span className="flex items-center gap-2 min-w-0">
+              <span className="font-semibold min-w-0 truncate">
+                {u.nome}
+                {u.id === meuId && <span className="font-normal text-[var(--cor-texto-suave)]"> (você)</span>}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditandoId(u.id)
+                  setNomeEditado(u.nome)
+                }}
+                className="shrink-0 text-sm font-semibold text-[var(--cor-primaria-clara)] min-h-11 px-2 cursor-pointer hover:underline"
+                aria-label={`Editar nome de ${u.nome}`}
+              >
+                Editar nome
+              </button>
+            </span>
+          )}
           <select
             value={u.role}
             onChange={(e) => mudarPapel(u, e.target.value)}

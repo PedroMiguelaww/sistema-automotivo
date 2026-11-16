@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useCallback } from 'react'
+import { createContext, useContext, useState, useCallback, useRef } from 'react'
 
 type ToastContextType = {
   mostrarToast: (mensagem: string, tipo?: 'sucesso' | 'erro') => void
@@ -16,11 +16,13 @@ export function useToast() {
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toast, setToast] = useState<{ mensagem: string; tipo: 'sucesso' | 'erro' } | null>(null)
+  const relogio = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   const mostrarToast = useCallback((mensagem: string, tipo: 'sucesso' | 'erro' = 'sucesso') => {
     setToast({ mensagem, tipo })
-    // tempo suficiente para ler com calma
-    setTimeout(() => setToast(null), 5000)
+    // tempo suficiente para ler com calma; a mensagem anterior não apaga a nova
+    clearTimeout(relogio.current)
+    relogio.current = setTimeout(() => setToast(null), 5000)
   }, [])
 
   return (

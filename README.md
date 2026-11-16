@@ -127,8 +127,10 @@ tests/                     parser do 0800 e regras de acesso (npm test)
 ### Criar um usuário
 
 1. Supabase > Authentication > Users > Add user > **Create new user**, com senha temporária e "Auto Confirm".
-2. No sistema, em Perfil > Usuários, o administrador escolhe o papel da pessoa.
-3. A pessoa usa "Esqueci minha senha" para definir a própria senha.
+2. No sistema, em Perfil > Usuários, o administrador corrige o nome (igual ao da
+   mensagem do 0800) e escolhe o papel da pessoa.
+3. A pessoa entra com a senha temporária e troca em Perfil > Alterar senha
+   (ou usa "Esqueci minha senha").
 
 Não use "Invite user": o convite não funciona com o fluxo de login deste sistema.
 

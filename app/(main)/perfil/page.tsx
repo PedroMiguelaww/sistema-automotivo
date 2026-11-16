@@ -7,6 +7,7 @@ import PlacaDetalhe from '@/components/PlacaDetalhe'
 import ListaPlacas, { type ConsultorNome, type PlacaLinha } from '@/components/ListaPlacas'
 import GerenciarUsuarios from '@/components/GerenciarUsuarios'
 import DuasEtapas from '@/components/DuasEtapas'
+import AlterarSenha from '@/components/AlterarSenha'
 import { nomeDoPapel } from '@/lib/papeis'
 
 type Perfil = {
@@ -117,6 +118,8 @@ export default function PerfilPage() {
       </div>
 
       {ehSuperAdmin && <GerenciarUsuarios meuId={perfil.id} />}
+
+      <AlterarSenha />
 
       <DuasEtapas />
 
