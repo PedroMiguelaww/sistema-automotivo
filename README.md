@@ -1,4 +1,4 @@
-# Sistema Automotivo — Proseg
+# Sistema Automotivo
 
 Sistema interno de acompanhamento de atendimentos automotivos: cadastro de placas a partir da mensagem do 0800 (ou foto via OCR), controle de etapas na mecânica, peças com valor e registro de reboques.
 

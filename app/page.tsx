@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { precisaDoCodigo } from '@/lib/duasEtapas'
 import CodigoDuasEtapas from '@/components/CodigoDuasEtapas'
-import Image from 'next/image'
+import Marca from '@/components/Marca'
 
 type Etapa = 'carregando' | 'login' | 'codigo' | 'esqueci' | 'email-enviado'
 
@@ -79,9 +79,8 @@ export default function HomePage() {
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center px-5 py-10 text-center">
-      <Image src="/logo-proseg.png" alt="Proseg" width={220} height={64} className="mb-5" priority />
-      <h1 className="fonte-titulo text-2xl font-bold mb-2">
-        Sistema Automotivo
+      <h1 className="mb-2">
+        <Marca grande />
       </h1>
       <p className="text-[var(--cor-texto-suave)] mb-8 max-w-sm">
         Gestão e comunicação integrada para atendimento automotivo.
